@@ -12,46 +12,52 @@ import AstroExplainer from "../components/AstroExplainer";
       name="description"
       content="An interactive Uppercut Labs explainer showing how Astro relates to React, Vite, GitHub, and Cloudflare Workers."
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <title>What is Astro? | Uppercut Labs Explainers</title>
+    <meta name="application-name" content="Uppercut Labs Explainers" />
+    <meta name="apple-mobile-web-app-title" content="Explainers" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href="/icons/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <script is:inline src="/pwa.js" defer></script>
 
   <style id="uppercut-home-link-styles">
     .uppercut-home-link {
       position: fixed;
-      left: max(14px, env(safe-area-inset-left));
-      bottom: max(14px, env(safe-area-inset-bottom));
-      z-index: 2147483647;
+      left: 14px;
+      bottom: 14px;
+      z-index: 1000;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      min-height: 42px;
-      padding: 10px 14px;
+      min-height: 40px;
+      padding: 9px 13px;
       border: 1px solid rgba(255,255,255,.20);
       border-radius: 999px;
-      background: rgba(15,15,20,.88);
+      background: #18161f;
       color: rgba(255,255,255,.94);
-      box-shadow: 0 10px 30px rgba(0,0,0,.34);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      font: 750 14px/1 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      box-shadow: 0 4px 14px rgba(0,0,0,.28);
+      font: 700 13px/1 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       text-decoration: none;
-      transition: transform .18s ease, background .18s ease, border-color .18s ease;
     }
-    .uppercut-home-link:hover {
-      transform: translateY(-2px);
-      border-color: rgba(196,181,253,.68);
-      background: rgba(28,25,38,.95);
+    .uppercut-home-link { gap: 7px; }
+    .uppercut-home-link img {
+      width: 20px;
+      height: 20px;
+      flex: none;
+      border-radius: 6px;
     }
-    .uppercut-home-link:focus-visible {
-      outline: 3px solid rgba(196,181,253,.72);
-      outline-offset: 3px;
-    }
-    @media (max-width: 480px) {
-      .uppercut-home-link { min-height: 40px; padding: 9px 12px; font-size: 13px; }
-    }
+    .uppercut-home-link:hover { border-color: rgba(196,181,253,.68); background: #24202e; }
+    .uppercut-home-link:focus-visible { outline: 3px solid rgba(196,181,253,.72); outline-offset: 3px; }
   </style>
   </head>
   <body style="margin: 0">
-  <a class="uppercut-home-link" href="/" aria-label="Return to the Uppercut Labs Explainers home page">← Explainers</a>
     <AstroExplainer client:load />
+  <a class="uppercut-home-link" href="/" aria-label="Return to the Uppercut Labs Explainers home page"><img src="/icons/favicon-32x32.png" width="20" height="20" alt="" aria-hidden="true" /><span>Explainers</span></a>
   </body>
 </html>

@@ -1,0 +1,80 @@
+{
+  "id": "/",
+  "name": "Uppercut Labs Explainers",
+  "short_name": "Explainers",
+  "description": "Interactive one-page explainers, comparisons, and visual research artifacts from Uppercut Labs.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#07070c",
+  "theme_color": "#0d0d12",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": [
+    "education",
+    "productivity",
+    "utilities"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "AI Game-Development Compatibility",
+      "short_name": "AI Game Dev",
+      "description": "Open the primary retro AI-development compatibility explainer.",
+      "url": "/ai-gamedev-compatibility",
+      "icons": [
+        {
+          "src": "/icons/app-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Async in Python",
+      "short_name": "Async Python",
+      "description": "Open the interactive async Python explainer.",
+      "url": "/async-python",
+      "icons": [
+        {
+          "src": "/icons/app-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "What is Astro?",
+      "short_name": "Astro",
+      "description": "Open the Astro framework explainer.",
+      "url": "/astro",
+      "icons": [
+        {
+          "src": "/icons/app-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

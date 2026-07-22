@@ -15,12 +15,6 @@ A single Astro project deployed to the existing Cloudflare Worker:
 - `/async-python`
 - `/astro`
 
-## Catalog navigation
-
-- Every explainer includes a floating **← Explainers** button that returns to `/`.
-- The home catalog can search explainer titles and sort by featured order, title A–Z, or title Z–A.
-- Add new cards to `public/index.html` with `data-title` and `data-featured-order` attributes so they participate in search and sorting.
-
 ## Project structure
 
 - `public/` contains the existing, already-compiled explainers. Astro copies these files into the final build unchanged.
@@ -74,3 +68,26 @@ import ExampleExplainer from "../components/ExampleExplainer";
 
 4. Add the route to `public/index.html`.
 5. Commit and push to `main`; Cloudflare builds and deploys it automatically.
+
+## Catalog controls and navigation
+
+The catalog supports title search and featured/A–Z/Z–A sorting. Each explainer has a lightweight home link placed after its application root so it cannot interfere with app mounting. The control deliberately avoids `backdrop-filter` and other costly compositing effects.
+
+
+## Branding and PWA
+
+The supplied work-in-progress logo is versioned at:
+
+- `design/branding/explainers-icon-v1.png`
+
+Generated production assets live in:
+
+- `public/brand/` — optimized homepage branding
+- `public/icons/` — favicon, Apple touch icon, standard PWA icons, and a maskable icon
+- `public/site.webmanifest` — app identity, colors, scope, and route shortcuts
+- `public/pwa.js` — non-blocking install-prompt and service-worker registration
+- `public/sw.js` — minimal service-worker lifecycle setup
+
+The service worker intentionally has no `fetch` handler. It does not proxy, cache, or delay page requests, and it cannot serve stale explainer builds. Offline caching can be added later as a separate, deliberate feature.
+
+The installed app identity is **Uppercut Labs Explainers**, with the short label **Explainers**.
