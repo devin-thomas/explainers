@@ -1,0 +1,79 @@
+---
+import ClaudeGameDevExplainer from "../components/ClaudeGameDevExplainer";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#121212" />
+    <meta
+      name="description"
+      content="Claude-generated comparison of retro platforms for AI-assisted game development."
+    />
+    <title>AI Game-Development Compatibility — Claude</title>
+    <meta name="application-name" content="Uppercut Labs Explainers" />
+    <meta name="apple-mobile-web-app-title" content="Explainers" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href="/icons/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Condensed:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap"
+    />
+    <script is:inline src="/pwa.js" defer></script>
+    <style>
+      html, body { min-height: 100%; margin: 0; background: #121212; }
+      .claude-loading {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        color: rgba(255,255,255,.72);
+        font: 600 15px/1.4 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .uppercut-home-link {
+        position: fixed;
+        left: 14px;
+        bottom: 14px;
+        z-index: 1500;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 40px;
+        padding: 9px 13px;
+        border: 1px solid rgba(255,255,255,.20);
+        border-radius: 999px;
+        background: #18161f;
+        color: rgba(255,255,255,.94);
+        box-shadow: 0 4px 14px rgba(0,0,0,.28);
+        font: 700 13px/1 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        text-decoration: none;
+      }
+      .uppercut-home-link img {
+        width: 20px;
+        height: 20px;
+        flex: none;
+        border-radius: 6px;
+      }
+      .uppercut-home-link:hover { border-color: rgba(196,181,253,.68); background: #24202e; }
+      .uppercut-home-link:focus-visible { outline: 3px solid rgba(196,181,253,.72); outline-offset: 3px; }
+    </style>
+  </head>
+  <body>
+    <ClaudeGameDevExplainer client:only="react">
+      <div slot="fallback" class="claude-loading" role="status">Loading Claude explainer…</div>
+    </ClaudeGameDevExplainer>
+    <a class="uppercut-home-link" href="/" aria-label="Return to the Uppercut Labs Explainers home page">
+      <img src="/icons/favicon-32x32.png" width="20" height="20" alt="" aria-hidden="true" />
+      <span>Explainers</span>
+    </a>
+  </body>
+</html>
