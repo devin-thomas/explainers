@@ -7,8 +7,45 @@
   <meta name="description" content="Interactive evidence-backed ranking of AI-assisted game development difficulty across classic game consoles and handhelds." />
   <title>Retro AI-Dev Index</title>
   <link rel="stylesheet" href="/ai-gamedev-compatibility/src/styles.css" />
+
+  <style id="uppercut-home-link-styles">
+    .uppercut-home-link {
+      position: fixed;
+      left: max(14px, env(safe-area-inset-left));
+      bottom: max(14px, env(safe-area-inset-bottom));
+      z-index: 2147483647;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,.20);
+      border-radius: 999px;
+      background: rgba(15,15,20,.88);
+      color: rgba(255,255,255,.94);
+      box-shadow: 0 10px 30px rgba(0,0,0,.34);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      font: 750 14px/1 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-decoration: none;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .uppercut-home-link:hover {
+      transform: translateY(-2px);
+      border-color: rgba(196,181,253,.68);
+      background: rgba(28,25,38,.95);
+    }
+    .uppercut-home-link:focus-visible {
+      outline: 3px solid rgba(196,181,253,.72);
+      outline-offset: 3px;
+    }
+    @media (max-width: 480px) {
+      .uppercut-home-link { min-height: 40px; padding: 9px 12px; font-size: 13px; }
+    }
+  </style>
 </head>
 <body>
+  <a class="uppercut-home-link" href="/" aria-label="Return to the Uppercut Labs Explainers home page">← Explainers</a>
   <noscript>This visualization requires JavaScript.</noscript>
   <div id="root"></div>
   <script src="/ai-gamedev-compatibility/vendor/react.production.min.js"></script>

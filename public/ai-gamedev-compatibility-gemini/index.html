@@ -8,8 +8,45 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">{"imports": {"react": "https://esm.sh/react@19.1.0", "react/": "https://esm.sh/react@19.1.0/", "react-dom": "https://esm.sh/react-dom@19.1.0", "react-dom/": "https://esm.sh/react-dom@19.1.0/", "@mui/material": "https://esm.sh/@mui/material@7.2.0?external=react,react-dom", "@mui/icons-material": "https://esm.sh/@mui/icons-material@7.2.0?external=react,react-dom", "recharts": "https://esm.sh/recharts@3.1.0?external=react,react-dom", "lucide-react": "https://esm.sh/lucide-react@0.525.0?external=react"}}</script>
     <style>html,body,#root{min-height:100%;margin:0}</style>
-  </head>
+  
+  <style id="uppercut-home-link-styles">
+    .uppercut-home-link {
+      position: fixed;
+      left: max(14px, env(safe-area-inset-left));
+      bottom: max(14px, env(safe-area-inset-bottom));
+      z-index: 2147483647;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,.20);
+      border-radius: 999px;
+      background: rgba(15,15,20,.88);
+      color: rgba(255,255,255,.94);
+      box-shadow: 0 10px 30px rgba(0,0,0,.34);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      font: 750 14px/1 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-decoration: none;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .uppercut-home-link:hover {
+      transform: translateY(-2px);
+      border-color: rgba(196,181,253,.68);
+      background: rgba(28,25,38,.95);
+    }
+    .uppercut-home-link:focus-visible {
+      outline: 3px solid rgba(196,181,253,.72);
+      outline-offset: 3px;
+    }
+    @media (max-width: 480px) {
+      .uppercut-home-link { min-height: 40px; padding: 9px 12px; font-size: 13px; }
+    }
+  </style>
+</head>
   <body>
+  <a class="uppercut-home-link" href="/" aria-label="Return to the Uppercut Labs Explainers home page">← Explainers</a>
     <div id="root"></div>
     <script type="module" src="/assets/gemini/main.js"></script>
   </body>

@@ -15,6 +15,12 @@ A single Astro project deployed to the existing Cloudflare Worker:
 - `/async-python`
 - `/astro`
 
+## Catalog navigation
+
+- Every explainer includes a floating **← Explainers** button that returns to `/`.
+- The home catalog can search explainer titles and sort by featured order, title A–Z, or title Z–A.
+- Add new cards to `public/index.html` with `data-title` and `data-featured-order` attributes so they participate in search and sorting.
+
 ## Project structure
 
 - `public/` contains the existing, already-compiled explainers. Astro copies these files into the final build unchanged.

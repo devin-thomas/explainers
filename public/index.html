@@ -4,22 +4,48 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0d0d12" />
+  <meta name="description" content="Search and browse interactive one-page explainers from Uppercut Labs." />
   <title>Uppercut Labs Explainers</title>
   <style>
     :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; background: #0d0d12; color: rgba(255,255,255,.92); }
-    main { width: min(920px, calc(100% - 40px)); margin: 0 auto; padding: 72px 0; }
+    button, input, select { font: inherit; }
+    main { width: min(980px, calc(100% - 40px)); margin: 0 auto; padding: 72px 0; }
     .eyebrow { color: #c4b5fd; font-size: .8rem; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; }
     h1 { margin: 12px 0 0; font-size: clamp(2.8rem, 9vw, 5.5rem); line-height: .96; letter-spacing: -.05em; }
     .intro { max-width: 680px; margin: 24px 0 0; color: rgba(255,255,255,.64); font-size: 1.15rem; line-height: 1.7; }
-    .grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; margin-top: 44px; }
-    a { display: block; padding: 26px; color: inherit; text-decoration: none; border: 1px solid rgba(255,255,255,.11); border-radius: 20px; background: rgba(255,255,255,.045); transition: .18s ease; }
-    a:hover { transform: translateY(-2px); border-color: rgba(196,181,253,.55); background: rgba(255,255,255,.075); }
+    .controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: end; margin-top: 38px; }
+    .control { display: grid; gap: 8px; }
+    .control-label { color: rgba(255,255,255,.58); font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .search-wrap { position: relative; }
+    .search-icon { position: absolute; top: 50%; left: 15px; width: 19px; height: 19px; color: rgba(255,255,255,.42); pointer-events: none; transform: translateY(-50%); }
+    input, select { width: 100%; min-height: 48px; border: 1px solid rgba(255,255,255,.13); border-radius: 14px; outline: none; background: rgba(255,255,255,.055); color: rgba(255,255,255,.92); transition: border-color .18s ease, background .18s ease, box-shadow .18s ease; }
+    input { padding: 0 16px 0 45px; }
+    select { min-width: 190px; padding: 0 42px 0 15px; cursor: pointer; }
+    input::placeholder { color: rgba(255,255,255,.38); }
+    input:focus, select:focus { border-color: rgba(196,181,253,.72); background: rgba(255,255,255,.075); box-shadow: 0 0 0 4px rgba(196,181,253,.10); }
+    option { color: #111118; background: #fff; }
+    .catalog-meta { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 24px; margin-top: 18px; color: rgba(255,255,255,.48); font-size: .9rem; }
+    .clear { appearance: none; padding: 0; border: 0; background: transparent; color: #c4b5fd; cursor: pointer; font-weight: 750; }
+    .clear[hidden] { display: none; }
+    .clear:hover { text-decoration: underline; }
+    .grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; margin-top: 16px; }
+    .card { display: block; padding: 26px; color: inherit; text-decoration: none; border: 1px solid rgba(255,255,255,.11); border-radius: 20px; background: rgba(255,255,255,.045); transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+    .card:hover { transform: translateY(-2px); border-color: rgba(196,181,253,.55); background: rgba(255,255,255,.075); }
+    .card:focus-visible { outline: 3px solid rgba(196,181,253,.65); outline-offset: 3px; }
+    .card[hidden] { display: none; }
     h2 { margin: 0; font-size: 1.25rem; }
     .card p { color: rgba(255,255,255,.58); line-height: 1.6; }
     .open { color: #c4b5fd; font-size: .9rem; font-weight: 700; }
-    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } main { padding: 48px 0; } }
+    .empty { margin-top: 16px; padding: 36px 24px; border: 1px dashed rgba(255,255,255,.15); border-radius: 20px; color: rgba(255,255,255,.58); text-align: center; background: rgba(255,255,255,.025); }
+    .empty[hidden] { display: none; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 700px) {
+      .controls, .grid { grid-template-columns: 1fr; }
+      select { min-width: 0; }
+      main { padding: 48px 0; }
+    }
   </style>
 </head>
 <body>
@@ -27,33 +53,117 @@
     <div class="eyebrow">Uppercut Labs</div>
     <h1>Explainers</h1>
     <p class="intro">Interactive one-page explainers, comparisons, and visual research artifacts.</p>
-    <section class="grid">
-      <a class="card" href="/ai-gamedev-compatibility">
+
+    <section class="controls" aria-label="Explainer catalog controls">
+      <label class="control" for="explainer-search">
+        <span class="control-label">Search by title</span>
+        <span class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+            <path d="m16.5 16.5 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+          <input id="explainer-search" type="search" autocomplete="off" placeholder="Search explainer titles…" />
+        </span>
+      </label>
+
+      <label class="control" for="explainer-sort">
+        <span class="control-label">Sort</span>
+        <select id="explainer-sort">
+          <option value="featured">Featured order</option>
+          <option value="title-asc">Title A–Z</option>
+          <option value="title-desc">Title Z–A</option>
+        </select>
+      </label>
+    </section>
+
+    <div class="catalog-meta">
+      <span id="catalog-status" role="status" aria-live="polite">5 explainers</span>
+      <button id="clear-search" class="clear" type="button" hidden>Clear search</button>
+    </div>
+
+    <section id="explainer-grid" class="grid" aria-label="Explainer catalog">
+      <a class="card" href="/ai-gamedev-compatibility" data-title="AI Game-Development Compatibility" data-featured-order="0">
         <h2>AI Game-Development Compatibility</h2>
         <p>Expanded evidence-backed index with adjustable scoring, platform comparisons, methodology, and 62 retro development targets.</p>
         <span class="open">Open primary explainer →</span>
       </a>
-      <a class="card" href="/ai-gamedev-compatibility-claude">
+      <a class="card" href="/ai-gamedev-compatibility-claude" data-title="AI Game-Development Compatibility — Claude" data-featured-order="1">
         <h2>AI Game-Development Compatibility — Claude</h2>
         <p>Claude-generated comparison of retro platforms for AI-assisted development.</p>
         <span class="open">Open explainer →</span>
       </a>
-      <a class="card" href="/ai-gamedev-compatibility-gemini">
+      <a class="card" href="/ai-gamedev-compatibility-gemini" data-title="AI Game-Development Compatibility — Gemini" data-featured-order="2">
         <h2>AI Game-Development Compatibility — Gemini</h2>
         <p>Gemini-generated comparison of retro platforms for AI-assisted development.</p>
         <span class="open">Open explainer →</span>
       </a>
-      <a class="card" href="/async-python">
+      <a class="card" href="/async-python" data-title="Async in Python" data-featured-order="3">
         <h2>Async in Python</h2>
         <p>A beginner-focused interactive mental model for asynchronous Python, event loops, tasks, awaits, and non-blocking work.</p>
         <span class="open">Open explainer →</span>
       </a>
-      <a class="card" href="/astro">
+      <a class="card" href="/astro" data-title="What is Astro?" data-featured-order="4">
         <h2>What is Astro?</h2>
         <p>An interactive guide to how Astro relates to React, Vite, GitHub, and Cloudflare Workers—and why it fits this explainer collection.</p>
         <span class="open">Open explainer →</span>
       </a>
     </section>
+
+    <div id="empty-state" class="empty" hidden>No explainer titles match that search.</div>
   </main>
+
+  <script>
+    (() => {
+      const searchInput = document.querySelector('#explainer-search');
+      const sortSelect = document.querySelector('#explainer-sort');
+      const clearButton = document.querySelector('#clear-search');
+      const grid = document.querySelector('#explainer-grid');
+      const status = document.querySelector('#catalog-status');
+      const emptyState = document.querySelector('#empty-state');
+      const cards = Array.from(grid.querySelectorAll('.card'));
+      const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
+
+      const normalize = (value) => value.trim().toLocaleLowerCase();
+
+      function updateCatalog() {
+        const query = normalize(searchInput.value);
+        const sortMode = sortSelect.value;
+
+        const sortedCards = [...cards].sort((a, b) => {
+          if (sortMode === 'title-asc') {
+            return collator.compare(a.dataset.title, b.dataset.title);
+          }
+          if (sortMode === 'title-desc') {
+            return collator.compare(b.dataset.title, a.dataset.title);
+          }
+          return Number(a.dataset.featuredOrder) - Number(b.dataset.featuredOrder);
+        });
+
+        let visibleCount = 0;
+        for (const card of sortedCards) {
+          grid.appendChild(card);
+          const isMatch = normalize(card.dataset.title).includes(query);
+          card.hidden = !isMatch;
+          if (isMatch) visibleCount += 1;
+        }
+
+        status.textContent = query
+          ? `${visibleCount} of ${cards.length} explainers`
+          : `${cards.length} explainers`;
+        emptyState.hidden = visibleCount !== 0;
+        clearButton.hidden = query.length === 0;
+      }
+
+      searchInput.addEventListener('input', updateCatalog);
+      sortSelect.addEventListener('change', updateCatalog);
+      clearButton.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.focus();
+        updateCatalog();
+      });
+
+      updateCatalog();
+    })();
+  </script>
 </body>
 </html>
