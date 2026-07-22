@@ -14,6 +14,7 @@ A single Astro project deployed to the existing Cloudflare Worker:
 - `/ai-gamedev-compatibility-gemini`
 - `/async-python`
 - `/astro`
+- `/free-zapier-alternatives`
 
 ## Project structure
 
