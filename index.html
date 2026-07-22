@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d0d12" />
+  <title>Uppercut Labs Explainers</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0d0d12; color: rgba(255,255,255,.92); }
+    main { width: min(920px, calc(100% - 40px)); margin: 0 auto; padding: 72px 0; }
+    .eyebrow { color: #c4b5fd; font-size: .8rem; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; }
+    h1 { margin: 12px 0 0; font-size: clamp(2.8rem, 9vw, 5.5rem); line-height: .96; letter-spacing: -.05em; }
+    .intro { max-width: 680px; margin: 24px 0 0; color: rgba(255,255,255,.64); font-size: 1.15rem; line-height: 1.7; }
+    .grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+    a { display: block; padding: 26px; color: inherit; text-decoration: none; border: 1px solid rgba(255,255,255,.11); border-radius: 20px; background: rgba(255,255,255,.045); transition: .18s ease; }
+    a:hover { transform: translateY(-2px); border-color: rgba(196,181,253,.55); background: rgba(255,255,255,.075); }
+    h2 { margin: 0; font-size: 1.25rem; }
+    .card p { color: rgba(255,255,255,.58); line-height: 1.6; }
+    .open { color: #c4b5fd; font-size: .9rem; font-weight: 700; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } main { padding: 48px 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Uppercut Labs</div>
+    <h1>Explainers</h1>
+    <p class="intro">Interactive one-page explainers, comparisons, and visual research artifacts.</p>
+    <section class="grid">
+      <a class="card" href="/ai-gamedev-compatibility">
+        <h2>AI Game-Development Compatibility</h2>
+        <p>Expanded evidence-backed index with adjustable scoring, platform comparisons, methodology, and 62 retro development targets.</p>
+        <span class="open">Open primary explainer →</span>
+      </a>
+      <a class="card" href="/ai-gamedev-compatibility-claude">
+        <h2>AI Game-Development Compatibility — Claude</h2>
+        <p>Claude-generated comparison of retro platforms for AI-assisted development.</p>
+        <span class="open">Open explainer →</span>
+      </a>
+      <a class="card" href="/ai-gamedev-compatibility-gemini">
+        <h2>AI Game-Development Compatibility — Gemini</h2>
+        <p>Gemini-generated comparison of retro platforms for AI-assisted development.</p>
+        <span class="open">Open explainer →</span>
+      </a>
+      <a class="card" href="/async-python">
+        <h2>Async in Python</h2>
+        <p>A beginner-focused interactive mental model for asynchronous Python, event loops, tasks, awaits, and non-blocking work.</p>
+        <span class="open">Open explainer →</span>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
