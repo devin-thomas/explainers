@@ -1,11 +1,14 @@
 {
   "name": "uppercut-labs-explainers",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "check:routes": "node scripts/check-route-ownership.mjs",
+    "prebuild": "npm run check:routes",
     "build": "astro build",
+    "postbuild": "node scripts/normalize-explainer-pages.mjs",
     "preview": "astro preview",
     "deploy": "wrangler deploy"
   },

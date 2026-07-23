@@ -1,0 +1,49 @@
+name: Build explainers
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check route ownership
+        run: npm run check:routes
+
+      - name: Build Astro site
+        shell: bash
+        run: |
+          if ! npx astro build > /tmp/astro-build.log 2>&1; then
+            echo "Astro build failed; diagnostic log will be uploaded."
+            exit 1
+          fi
+          cat /tmp/astro-build.log
+
+      - name: Upload Astro failure log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: astro-build-failure
+          path: /tmp/astro-build.log
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Normalize built explainer pages
+        run: node scripts/normalize-explainer-pages.mjs
