@@ -28,7 +28,15 @@ jobs:
         run: npm run check:routes
 
       - name: Build Astro site
-        run: npx astro build
+        shell: bash
+        run: |
+          if ! npx astro build > /tmp/astro-build.log 2>&1; then
+            echo "::group::Astro build failure"
+            tail -n 120 /tmp/astro-build.log
+            echo "::endgroup::"
+            exit 1
+          fi
+          cat /tmp/astro-build.log
 
       - name: Normalize built explainer pages
         run: node scripts/normalize-explainer-pages.mjs
