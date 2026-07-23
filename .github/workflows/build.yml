@@ -31,12 +31,19 @@ jobs:
         shell: bash
         run: |
           if ! npx astro build > /tmp/astro-build.log 2>&1; then
-            echo "::group::Astro build failure"
-            tail -n 120 /tmp/astro-build.log
-            echo "::endgroup::"
+            echo "Astro build failed; diagnostic log will be uploaded."
             exit 1
           fi
           cat /tmp/astro-build.log
+
+      - name: Upload Astro failure log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: astro-build-failure
+          path: /tmp/astro-build.log
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Normalize built explainer pages
         run: node scripts/normalize-explainer-pages.mjs
