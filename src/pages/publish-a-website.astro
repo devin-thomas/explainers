@@ -1,0 +1,146 @@
+---
+const approaches = [
+  {
+    n: "01", group: "native", accent: "#82d5c3", kind: "Direct upload", title: "One index.html", file: "index.html",
+    summary: "A complete document with inline CSS and JavaScript. This is the smallest genuinely self-contained website.",
+    use: "One-off explainers, prototypes, portfolios, event pages, tiny tools, and artifacts that should remain portable.",
+    tree: "site/\n└── index.html",
+    requirements: ["A complete HTML document with doctype, language, head, viewport, title, and body.", "CSS in a <style> element and JavaScript in a <script> element.", "A static host—or a simple local HTTP server for reliable previewing."],
+    pros: ["No packages, build, or generated output.", "Upload one file almost anywhere.", "Easy to archive, inspect, and move."],
+    cons: ["Gets unwieldy as code grows.", "Weak reuse across pages.", "One large file is harder to maintain."],
+    browser: "Yes", build: "None", publish: "The file itself"
+  },
+  {
+    n: "02", group: "native", accent: "#9bc7ff", kind: "Direct upload", title: "HTML + CSS + JavaScript", file: "index.html + styles.css + script.js",
+    summary: "The classic browser-native split: structure, presentation, and behavior remain separate without adding a toolchain.",
+    use: "Small sites that have outgrown one file but do not need packages, compilation, or component frameworks.",
+    tree: "site/\n├── index.html\n├── styles.css\n└── script.js",
+    requirements: ["A stylesheet link in the document head.", "A deferred script, or type=module when using imports.", "Relative paths that remain intact after upload."],
+    pros: ["Readable separation with zero build overhead.", "CSS and JS cache independently.", "Easy path toward modules later."],
+    cons: ["No type checking.", "Manual DOM state can become complex.", "Global CSS and state need discipline."],
+    browser: "Yes", build: "None", publish: "The folder"
+  },
+  {
+    n: "03", group: "native", accent: "#f2b8d2", kind: "Direct upload", title: "HTML + native JS modules", file: "index.html + main.js + modules",
+    summary: "Use type=module plus import/export to split behavior into browser-native modules without bundling.",
+    use: "Small-to-medium tools that benefit from modules but do not need npm packages bundled for the browser.",
+    tree: "site/\n├── index.html\n├── styles.css\n└── js/\n    ├── main.js\n    ├── ui.js\n    └── data.js",
+    requirements: ["The entry script uses type=module.", "Imports use browser-resolvable URLs such as ./ui.js.", "A local HTTP server is recommended; file:// has security limitations."],
+    pros: ["Native modules and scoped files.", "No bundler lock-in.", "Transparent network behavior."],
+    cons: ["Bare npm package imports are inconvenient without tooling.", "Many modules can mean many requests.", "Still plain JavaScript rather than TypeScript or JSX."],
+    browser: "Yes", build: "None", publish: "The module tree"
+  },
+  {
+    n: "04", group: "build", accent: "#e9c46a", kind: "Compile", title: "HTML + CSS + TypeScript", file: "index.html + styles.css + main.ts",
+    summary: "You author .ts, but the browser receives compiled .js. TypeScript is never the final web payload.",
+    use: "DOM-heavy tools where type safety helps but React would add unnecessary runtime and project complexity.",
+    tree: "site/\n├── index.html\n├── package.json\n├── tsconfig.json\n└── src/\n    ├── main.ts\n    └── styles.css\n\ndist/  ← publish this",
+    requirements: ["package.json declares TypeScript/build dependencies and scripts.", "tsconfig.json defines type-checking and output assumptions.", "A compiler or bundler creates browser-ready JavaScript. Vite is a common small-project choice."],
+    pros: ["Type safety without a UI framework.", "Safer refactoring and clearer data shapes.", "A bundler can hash and optimize assets."],
+    cons: ["Node/npm and a build step become required.", "Source cannot be uploaded as-is.", "Types disappear at runtime."],
+    browser: "No", build: "Required", publish: "Compiled HTML/CSS/JS"
+  },
+  {
+    n: "05", group: "build", accent: "#d0bcff", kind: "Transform", title: "One JSX source file", file: "main.jsx",
+    summary: "One JSX file can contain an entire React UI and its mount call, but it still needs an HTML root, React, and JSX transformation supplied somewhere.",
+    use: "Sandboxes, embedded demos, and tiny React apps where a platform or build system supplies the surrounding project.",
+    tree: "site/\n├── index.html       # <div id=\"root\">\n├── package.json     # React + build tool\n└── src/\n    └── main.jsx     # App + createRoot\n\ndist/              # publish this",
+    requirements: ["An HTML document with a mount element.", "React and React DOM dependencies.", "A transform/build step; conventional browsers do not parse raw JSX."],
+    pros: ["Concise component-oriented authoring.", "Easy to paste into React-enabled environments.", "A tiny app can live in one editable source file."],
+    cons: ["Not browser-native syntax.", "The one-file experience often hides fixtures.", "A giant component becomes hard to maintain quickly."],
+    browser: "No", build: "Required", publish: "Transformed bundle"
+  },
+  {
+    n: "06", group: "build", accent: "#9bc7ff", kind: "Component source", title: "One App.tsx", file: "App.tsx",
+    summary: "App.tsx is conventionally the main typed React component—not a complete document, dependency manifest, mount entry, or production build.",
+    use: "A small typed React interface inside an existing React/Vite/framework project, or a platform that explicitly treats App.tsx as the entry.",
+    tree: "site/\n├── index.html\n├── package.json\n├── tsconfig.json\n├── vite.config.ts\n└── src/\n    ├── main.tsx     # mounts React\n    ├── App.tsx      # primary component\n    └── styles.css   # optional\n\ndist/              # publish this",
+    requirements: ["index.html supplies the document and root element.", "main.tsx imports App and mounts React DOM.", "package.json, tsconfig, and usually framework/build configuration supply dependencies and TSX transformation."],
+    pros: ["Typed props, state, and editor feedback.", "Natural growth into reusable components.", "Mature tooling and ecosystem."],
+    cons: ["Much more machinery than static HTML.", "Client runtime cost may be unjustified for content pages.", "Calling it a one-file site hides the actual fixtures."],
+    browser: "No", build: "Required", publish: "Built app assets"
+  },
+  {
+    n: "07", group: "build", accent: "#f2b8d2", kind: "Generate", title: "One .astro page", file: "index.astro",
+    summary: "Inside an Astro project, one page can hold markup, scoped styles, build-time logic, and browser scripts, then generate static HTML.",
+    use: "Explainers, docs, content-heavy microsites, and mostly-static pages that need selective interactivity.",
+    tree: "site/\n├── package.json\n├── astro.config.mjs  # often optional\n└── src/pages/\n    └── index.astro\n\ndist/               # generated site",
+    requirements: ["An Astro project and Node build environment.", "The page lives under src/pages to become a route.", "The host receives generated HTML/CSS/JS, not the .astro source."],
+    pros: ["Excellent static output with little client JS.", "Expressive one-file page authoring.", "Can hydrate React only where needed."],
+    cons: ["Still requires a framework build.", "Overkill for the tiniest page.", "Server behavior requires an adapter/runtime."],
+    browser: "No", build: "Required", publish: "Generated static files"
+  },
+  {
+    n: "08", group: "runtime", accent: "#f2b8b5", kind: "Runtime", title: "One Worker or server function", file: "src/index.ts",
+    summary: "A request handler returns an HTML response directly. There may be no index.html source because runtime code creates the document.",
+    use: "Tiny dynamic pages, request-aware output, redirects, auth gates, API-plus-HTML prototypes, and edge experiments.",
+    tree: "site/\n├── package.json\n├── platform-config.jsonc\n└── src/index.ts\n\n# Dashboard editors may hide fixtures.",
+    requirements: ["A platform runtime that invokes the handler.", "A response body containing HTML with Content-Type: text/html.", "Deployment configuration or a dashboard that supplies it."],
+    pros: ["Dynamic output without an always-on server.", "Can use headers, cookies, URL data, and secrets.", "One handler can serve HTML and APIs."],
+    cons: ["More operational failure modes than static files.", "Platform/runtime configuration is mandatory.", "Generating static content on every request can be wasteful."],
+    browser: "Receives output", build: "Platform-dependent", publish: "Runtime code"
+  },
+  {
+    n: "09", group: "native", accent: "#8bd9a5", kind: "Deployment artifact", title: "A generated dist folder", file: "dist/",
+    summary: "Static hosting does not care whether the source was React, TypeScript, or Astro. It cares that the output contains browser-ready files.",
+    use: "Publishing any build-based static site to a host that accepts drag-and-drop or prebuilt output.",
+    tree: "dist/\n├── index.html\n├── assets/\n│   ├── index-a1b2c3.js\n│   └── index-d4e5f6.css\n└── other-route/index.html",
+    requirements: ["Run the source project build first.", "Upload the configured output folder—not src/App.tsx.", "For client-side routers, configure deep-link rewrites when needed."],
+    pros: ["Portable across static hosts.", "No production Node process for static output.", "CDN-friendly files and hashed assets."],
+    cons: ["Must rebuild after source changes.", "Generated files should not be the canonical source.", "Host routing rules may still be needed."],
+    browser: "Yes", build: "Already completed", publish: "The folder itself"
+  }
+];
+
+const rows = approaches.map(({title, browser, build, publish, use}) => ({title, browser, build, publish, use}));
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0b12" />
+  <meta name="description" content="A detailed guide to the smallest practical website structures: one HTML file, CSS and JavaScript splits, TypeScript, JSX, App.tsx, Astro, Workers, and dist folders." />
+  <meta name="application-name" content="Explainers" />
+  <meta name="apple-mobile-web-app-title" content="Explainers" />
+  <meta property="og:site_name" content="Explainers" />
+  <meta property="og:title" content="The Smallest Ways to Publish a Website" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" href="/icons/favicon.ico" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <title>Publish a Website — Explainers</title>
+  <script is:inline src="/pwa.js" defer></script>
+  <style>
+    :root{color-scheme:dark;--bg:#0b0b12;--card:#171620;--line:rgba(238,232,243,.13);--text:#eee8f3;--muted:#c7bfcd;--dim:#958d9d;--p:#d0bcff;--green:#82d5c3;--red:#f2b8b5;font-family:Inter,Roboto,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;background:radial-gradient(circle at 80% 0,rgba(116,84,184,.23),transparent 34rem),var(--bg);color:var(--text)}a{color:inherit}code,pre{font-family:Consolas,"SFMono-Regular",monospace}.shell{width:min(1160px,calc(100% - 30px));margin:auto;padding:18px 0 90px}.top{position:sticky;top:10px;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:9px;border:1px solid var(--line);border-radius:20px;background:rgba(18,17,25,.91)}.home,.jump{display:flex;align-items:center;gap:9px;min-height:40px;padding:7px 11px;border-radius:13px;text-decoration:none;font-size:.86rem;font-weight:850}.home:hover,.jump:hover{background:rgba(208,188,255,.1)}.home img{width:26px;height:26px;border-radius:7px}.jump{color:var(--p)}header{padding:72px 4px 38px}.eyebrow,.label{color:var(--p);font-size:.75rem;font-weight:900;letter-spacing:.17em;text-transform:uppercase}h1{max-width:980px;margin:16px 0 0;font-size:clamp(3rem,9vw,6.8rem);line-height:.94;letter-spacing:-.06em}.lede{max-width:790px;color:var(--muted);font-size:clamp(1.05rem,2vw,1.3rem);line-height:1.65}.rule{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin:10px 0 68px}.rule>div{padding:clamp(24px,4vw,40px);border:1px solid var(--line);border-radius:27px;background:linear-gradient(145deg,rgba(208,188,255,.09),rgba(255,255,255,.025))}.rule h2,.section-head h2{margin:12px 0 0;font-size:clamp(2rem,4.3vw,3.7rem);line-height:1;letter-spacing:-.04em}.rule p,.section-head p{color:var(--muted);line-height:1.65}.flow{display:grid;gap:9px}.flow span{padding:13px;border:1px solid var(--line);border-radius:15px;color:var(--muted);background:rgba(0,0,0,.18)}.flow b{color:var(--text)}section{margin-top:76px;scroll-margin-top:85px}.section-head{display:grid;grid-template-columns:1fr minmax(260px,470px);gap:28px;align-items:end;margin-bottom:22px}.filters{display:flex;flex-wrap:wrap;gap:8px;padding:8px;border:1px solid var(--line);border-radius:18px;background:rgba(23,22,32,.7)}button{min-height:40px;padding:0 14px;border:0;border-radius:12px;background:transparent;color:var(--muted);font:800 .84rem/1 inherit;cursor:pointer}button[aria-pressed=true]{background:var(--p);color:#28163e}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px;margin-top:18px}.card{overflow:hidden;border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:24px;background:linear-gradient(150deg,rgba(255,255,255,.05),rgba(255,255,255,.02))}.card[hidden]{display:none}.main{padding:23px}.meta{display:flex;justify-content:space-between;gap:12px;color:var(--accent);font-size:.72rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.card h3{margin:17px 0 8px;font-size:1.65rem;letter-spacing:-.025em}.file{color:var(--p);font-size:.82rem}.summary,.use{color:var(--muted);line-height:1.58}.use{padding:12px;border-radius:15px;background:rgba(0,0,0,.2);font-size:.88rem}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.fact{padding:10px;border:1px solid var(--line);border-radius:13px}.fact small{display:block;color:var(--dim);font-size:.65rem;font-weight:900;text-transform:uppercase}.fact b{display:block;margin-top:4px;font-size:.82rem}details{border-top:1px solid var(--line)}summary{display:flex;justify-content:space-between;padding:17px 23px;color:var(--p);cursor:pointer;font-size:.84rem;font-weight:850;list-style:none}summary::-webkit-details-marker{display:none}summary:after{content:"+"}details[open] summary:after{content:"−"}.details{display:grid;gap:16px;padding:0 23px 23px}.details h4{margin:0 0 7px;color:var(--dim);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase}.details li{color:var(--muted);font-size:.88rem;line-height:1.5}.details ul{margin:0;padding-left:19px}.tree{margin:0;overflow:auto;padding:15px;border:1px solid var(--line);border-radius:15px;background:#0d0c13;color:#ddd5e6;font-size:.79rem;line-height:1.6}.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.pros h4{color:var(--green)}.cons h4{color:var(--red)}.myth{display:grid;grid-template-columns:1fr 1fr;gap:17px}.myth article,.host article,.choice article{padding:23px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.035)}.myth h3{margin:0 0 10px;font-size:1.45rem}.myth p,.host p,.choice p{margin:0;color:var(--muted);line-height:1.58}.equation{margin-top:17px;color:var(--p);font:800 .82rem/1.5 Consolas,monospace}.table{overflow:auto;border:1px solid var(--line);border-radius:22px}table{width:100%;min-width:900px;border-collapse:collapse}th,td{padding:15px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dim);font-size:.69rem;text-transform:uppercase}td{color:var(--muted);font-size:.84rem;line-height:1.4}td:first-child{color:var(--text);font-weight:850}tr:last-child td{border:0}.choice{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.choice h3,.host h3{margin:0 0 9px}.answer{display:block;margin-top:14px;color:var(--green);font-size:.82rem;font-weight:900}.host{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sources{display:flex;flex-wrap:wrap;gap:9px}.sources a{padding:11px 13px;border:1px solid var(--line);border-radius:13px;color:var(--p);text-decoration:none;font-size:.82rem;font-weight:800}footer{margin-top:74px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim);line-height:1.6}@media(max-width:850px){.rule,.section-head,.myth{grid-template-columns:1fr}.grid,.host{grid-template-columns:1fr}.choice{grid-template-columns:1fr}}@media(max-width:560px){.shell{width:calc(100% - 18px)}header{padding-top:54px}.jump span{display:none}.facts,.two{grid-template-columns:1fr}.filters{display:grid;grid-template-columns:1fr 1fr}.filters button:last-child{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <nav class="top"><a class="home" href="/"><img src="/icons/favicon-32x32.png" alt="" /><span>Explainers</span></a><a class="jump" href="#choose"><span>Choose a structure</span> ↓</a></nav>
+  <header><span class="eyebrow">Smallest practical web publishing formats</span><h1>From one file to a real website.</h1><p class="lede">“Single HTML,” “single JSX,” and “single App.tsx” sound equivalent, but they describe different points in the pipeline. Separate what you author, what transforms it, and what a host can actually serve.</p></header>
+
+  <div class="rule"><div><span class="label">The browser rule</span><h2>The web platform receives HTML, CSS, JavaScript, and assets.</h2><p>Browsers do not natively execute TypeScript, JSX, TSX, React components, or Astro source. Those authoring formats must become browser-ready files—or run on a server that returns browser-ready files.</p></div><div class="flow"><span><b>1 · Source</b><br/>HTML, CSS, JS, TS, JSX, TSX, Astro, or a handler</span><span><b>2 · Optional transform</b><br/>Compile, bundle, optimize, or generate</span><span><b>3 · Publishable output</b><br/>Static files or runtime code</span><span><b>4 · Host + URL</b><br/>Serve files or execute the handler</span></div></div>
+
+  <main>
+    <section id="formats"><div class="section-head"><div><span class="label">Approach catalog</span><h2>The smallest useful structures</h2></div><p>Filter by whether source can be uploaded directly, needs a build, or needs a runtime. Expand each card for fixtures, advantages, disadvantages, and exact file shape.</p></div>
+      <div class="filters" role="group" aria-label="Filter approaches"><button data-filter="all" aria-pressed="true">All</button><button data-filter="native" aria-pressed="false">Direct upload</button><button data-filter="build" aria-pressed="false">Build required</button><button data-filter="runtime" aria-pressed="false">Runtime</button></div>
+      <div class="grid">
+        {approaches.map((a) => <article class="card" data-group={a.group} style={`--accent:${a.accent}`}><div class="main"><div class="meta"><span>{a.n}</span><span>{a.kind}</span></div><h3>{a.title}</h3><div class="file"><code>{a.file}</code></div><p class="summary">{a.summary}</p><p class="use"><strong>Use it for:</strong> {a.use}</p><div class="facts"><div class="fact"><small>Browser source</small><b>{a.browser}</b></div><div class="fact"><small>Build</small><b>{a.build}</b></div><div class="fact"><small>Publish</small><b>{a.publish}</b></div></div></div><details><summary>Files, fixtures, and tradeoffs</summary><div class="details"><div><h4>Minimum / typical tree</h4><pre class="tree">{a.tree}</pre></div><div><h4>Requirements</h4><ul>{a.requirements.map((x) => <li>{x}</li>)}</ul></div><div class="two"><div class="pros"><h4>Advantages</h4><ul>{a.pros.map((x) => <li>{x}</li>)}</ul></div><div class="cons"><h4>Disadvantages</h4><ul>{a.cons.map((x) => <li>{x}</li>)}</ul></div></div></div></details></article>)}
+      </div>
+    </section>
+
+    <section><div class="section-head"><div><span class="label">Terminology correction</span><h2>“One file” can mean three different things</h2></div><p>Tools often market a one-file editing experience while supplying document shell, dependencies, transformation, and deployment behind the scenes.</p></div><div class="myth"><article><h3 style="color:var(--red)">Misleading shorthand</h3><p>“This website is just one App.tsx.” That may describe the only file you edit, not the complete production system.</p><div class="equation">App.tsx ≠ browser-ready website</div></article><article><h3 style="color:var(--green)">Complete statement</h3><p>“I edit one App.tsx; the platform supplies HTML, React, dependencies, compiler, bundler, build, hosting, and URL.”</p><div class="equation">source + fixtures + transform = site</div></article></div></section>
+
+    <section><div class="section-head"><div><span class="label">At-a-glance matrix</span><h2>What each approach requires</h2></div><p>The simplest choice is the least machinery that still matches the page’s actual complexity and maintenance needs.</p></div><div class="table"><table><thead><tr><th>Approach</th><th>Browser-ready source?</th><th>Build</th><th>Published form</th><th>Best fit</th></tr></thead><tbody>{rows.map((r) => <tr><td>{r.title}</td><td>{r.browser}</td><td>{r.build}</td><td>{r.publish}</td><td>{r.use}</td></tr>)}</tbody></table></div></section>
+
+    <section id="choose"><div class="section-head"><div><span class="label">Decision guide</span><h2>Choose the least powerful thing that comfortably works</h2></div><p>Move up the stack only when the lower level becomes a real constraint—not because a larger toolchain is fashionable.</p></div><div class="choice"><article><h3>One page, modest interaction?</h3><p>A few event listeners and DOM updates, with no complicated shared state.</p><span class="answer">Use one HTML file or HTML + CSS + JS.</span></article><article><h3>Mainly need safer JavaScript?</h3><p>Data shapes and refactoring are risky, but the interface is still straightforward.</p><span class="answer">Use vanilla TypeScript + a small build tool.</span></article><article><h3>UI naturally component-shaped?</h3><p>Repeated interactive units, shared state, conditional trees, and reuse justify components.</p><span class="answer">Use JSX/TSX with React or similar.</span></article><article><h3>Mostly content?</h3><p>Ship HTML by default and add client interactivity only to selected regions.</p><span class="answer">Use Astro or another content-first generator.</span></article><article><h3>Response changes per request?</h3><p>Private data, cookies, secrets, auth, or request-aware logic must run outside the browser.</p><span class="answer">Use a Worker, function, or server.</span></article><article><h3>Does the host build?</h3><p>A Git host can build source; a drag-and-drop static host expects browser-ready output.</p><span class="answer">Push source to a builder; upload dist/ to static hosting.</span></article></div></section>
+
+    <section><div class="section-head"><div><span class="label">Publication surfaces</span><h2>Four ways a URL becomes a website</h2></div><p>The decisive question is whether the host serves files, runs a build, or executes code.</p></div><div class="host"><article><h3>Static folder upload</h3><p>Upload index.html and assets—or a generated dist folder. No production build or server process runs.</p></article><article><h3>Git-connected static build</h3><p>The platform installs dependencies, runs a build command, then serves the configured output directory.</p></article><article><h3>Edge/serverless function</h3><p>The platform executes a request handler that returns HTML, JSON, redirects, or assets.</p></article><article><h3>Traditional server</h3><p>A long-running Node, Python, Ruby, PHP, or other application owns routing and responses.</p></article></div></section>
+
+    <section><div class="section-head"><div><span class="label">Official references</span><h2>Primary documentation</h2></div><p>Browser modules, JSX/TSX transformation, React TypeScript conventions, and current Vite project templates.</p></div><div class="sources"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">MDN · Modules ↗</a><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script">MDN · Script ↗</a><a href="https://react.dev/learn/writing-markup-with-jsx">React · JSX ↗</a><a href="https://react.dev/learn/typescript">React · TypeScript ↗</a><a href="https://www.typescriptlang.org/docs/handbook/jsx.html">TypeScript · JSX/TSX ↗</a><a href="https://vite.dev/guide/">Vite · Getting started ↗</a></div></section>
+  </main>
+  <footer><strong>Bottom line:</strong> one index.html is genuinely a complete one-file website. One .jsx, App.tsx, or .astro file can be a complete authoring surface only when a project or platform supplies the missing fixtures and turns it into browser-ready output.</footer>
+</div>
+<script is:inline>(()=>{const buttons=[...document.querySelectorAll('[data-filter]')],cards=[...document.querySelectorAll('.card')];for(const b of buttons)b.addEventListener('click',()=>{const f=b.dataset.filter;for(const x of buttons)x.setAttribute('aria-pressed',String(x===b));for(const c of cards)c.hidden=f!=='all'&&c.dataset.group!==f})})();</script>
+</body>
+</html>
