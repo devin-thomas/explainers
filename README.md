@@ -9,6 +9,7 @@ A single Astro project deployed to the existing Cloudflare Worker:
 ## Catalog routes
 
 - `/`
+- `/obsidian-on-servers`
 - `/npm-and-npx`
 - `/publish-a-website`
 - `/figma-basics`
