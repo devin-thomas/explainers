@@ -1,6 +1,6 @@
 {
   "id": "/",
-  "name": "Uppercut Labs Explainers",
+  "name": "Explainers",
   "short_name": "Explainers",
   "description": "Interactive one-page explainers, comparisons, and visual research artifacts from Uppercut Labs.",
   "start_url": "/",
@@ -37,6 +37,19 @@
     }
   ],
   "shortcuts": [
+    {
+      "name": "The Smallest Ways to Publish a Website",
+      "short_name": "Publish a Site",
+      "description": "Compare the smallest practical structures for publishing a website.",
+      "url": "/publish-a-website",
+      "icons": [
+        {
+          "src": "/icons/app-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
     {
       "name": "AI Game-Development Compatibility",
       "short_name": "AI Game Dev",
