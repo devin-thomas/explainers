@@ -24,5 +24,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build and validate routes
-        run: npm run build
+      - name: Check route ownership
+        run: npm run check:routes
+
+      - name: Build Astro site
+        run: npx astro build
+
+      - name: Normalize built explainer pages
+        run: node scripts/normalize-explainer-pages.mjs
