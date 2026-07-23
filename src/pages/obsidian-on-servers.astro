@@ -1,0 +1,46 @@
+---
+import ObsidianServersExplainer from "../components/ObsidianServersExplainerEntry";
+import ExplainerPageIntro from "../components/ExplainerPageIntro.astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d0d12" />
+    <meta
+      name="description"
+      content="A visual guide to Obsidian Headless, official Sync servers, self-hosted alternatives, server automation, security boundaries, setup, and limitations."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Explainers" />
+    <meta property="og:title" content="Obsidian on Servers" />
+    <meta
+      property="og:description"
+      content="Understand what it means to run Obsidian on a server—and why Obsidian Headless is a client, not a self-hosted Sync server."
+    />
+    <meta property="og:url" content="https://explainers.uppercut-labs.workers.dev/obsidian-on-servers" />
+    <meta property="og:image" content="https://explainers.uppercut-labs.workers.dev/icons/app-icon-512.png" />
+    <title>Obsidian on Servers — Explainers</title>
+    <meta name="application-name" content="Uppercut Labs Explainers" />
+    <meta name="apple-mobile-web-app-title" content="Explainers" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href="/icons/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <script is:inline src="/pwa.js" defer></script>
+    <style>html, body { min-height: 100%; margin: 0; background: #0d0d12; }</style>
+  </head>
+  <body class="explainer-page-with-intro">
+    <ExplainerPageIntro
+      title="Obsidian on Servers"
+      hook="The important distinction: Obsidian Headless runs on your server, but it is not a self-hosted Obsidian Sync server. This guide separates the client, the hosted backend, and community alternatives."
+    />
+    <ObsidianServersExplainer client:load />
+  </body>
+</html>
