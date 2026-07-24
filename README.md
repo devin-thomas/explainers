@@ -9,6 +9,7 @@ A single Astro project deployed to the existing Cloudflare Worker:
 ## Catalog routes
 
 - `/`
+- `/markdown`
 - `/free-zapier-alternatives`
 - `/obsidian-on-servers`
 - `/npm-and-npx`
