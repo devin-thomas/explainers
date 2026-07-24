@@ -1,9 +1,10 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
 const root = process.cwd();
 const publicRoot = join(root, "public");
 const pagesRoot = join(root, "src", "pages");
+const catalogFile = join(publicRoot, "index.html");
 
 function walk(directory) {
   if (!existsSync(directory)) return [];
@@ -15,7 +16,11 @@ function walk(directory) {
 }
 
 function normalizeRoute(value) {
-  const normalized = value.split(sep).join("/").replace(/^\/+|\/+$/g, "");
+  const normalized = value
+    .split(/[?#]/, 1)[0]
+    .split(sep)
+    .join("/")
+    .replace(/^\/+|\/+$/g, "");
   return normalized ? `/${normalized}` : "/";
 }
 
@@ -48,4 +53,56 @@ if (collisions.length > 0) {
   process.exit(1);
 }
 
-console.log(`Route ownership check passed: ${publicRoutes.size} public routes and ${astroRoutes.size} Astro routes.`);
+if (!existsSync(catalogFile)) {
+  console.error("\nCatalog validation failed: public/index.html is missing.\n");
+  process.exit(1);
+}
+
+const catalogHtml = readFileSync(catalogFile, "utf8");
+const catalogRoutes = [];
+const anchorPattern = /<a\b([^>]*)>/gi;
+let anchorMatch;
+
+while ((anchorMatch = anchorPattern.exec(catalogHtml)) !== null) {
+  const attributes = anchorMatch[1];
+  const className = attributes.match(/\bclass=["']([^"']*)["']/i)?.[1] ?? "";
+  if (!className.split(/\s+/).includes("open")) continue;
+
+  const href = attributes.match(/\bhref=["']([^"']+)["']/i)?.[1];
+  if (!href || !href.startsWith("/")) continue;
+  catalogRoutes.push(normalizeRoute(href));
+}
+
+const duplicateCatalogRoutes = [...new Set(catalogRoutes.filter((route, index) => catalogRoutes.indexOf(route) !== index))];
+const catalogRouteSet = new Set(catalogRoutes);
+const ownedRouteSet = new Set([...publicRoutes.keys(), ...astroRoutes.keys()]);
+ownedRouteSet.delete("/");
+
+const missingFromCatalog = [...ownedRouteSet].filter((route) => !catalogRouteSet.has(route)).sort();
+const missingOwner = [...catalogRouteSet].filter((route) => !ownedRouteSet.has(route)).sort();
+
+if (duplicateCatalogRoutes.length || missingFromCatalog.length || missingOwner.length) {
+  console.error("\nExplainer catalog validation failed.\n");
+
+  if (duplicateCatalogRoutes.length) {
+    console.error("  Duplicate catalog routes:");
+    for (const route of duplicateCatalogRoutes) console.error(`    ${route}`);
+  }
+
+  if (missingFromCatalog.length) {
+    console.error("  Owned routes missing from public/index.html:");
+    for (const route of missingFromCatalog) console.error(`    ${route}`);
+  }
+
+  if (missingOwner.length) {
+    console.error("  Catalog routes without a public/ or src/pages/ owner:");
+    for (const route of missingOwner) console.error(`    ${route}`);
+  }
+
+  console.error("\nEvery explainer route must have exactly one owner and exactly one catalog card.\n");
+  process.exit(1);
+}
+
+console.log(
+  `Route and catalog checks passed: ${publicRoutes.size} public routes, ${astroRoutes.size} Astro routes, and ${catalogRoutes.length} catalog entries.`,
+);
