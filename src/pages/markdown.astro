@@ -1,0 +1,310 @@
+---
+import ExplainerPageIntro from "../components/ExplainerPageIntro.astro";
+
+const syntax = [
+  { source: "# Heading", result: "Heading", meaning: "Document structure" },
+  { source: "**bold**", result: "bold", meaning: "Strong emphasis" },
+  { source: "- item", result: "• item", meaning: "Unordered list" },
+  { source: "[text](url)", result: "text", meaning: "Link" },
+  { source: "`code`", result: "code", meaning: "Inline code" },
+  { source: "```js", result: "code block", meaning: "Fenced code with a language hint" },
+];
+
+const overheadRows = [
+  { format: "TXT", sample: "Project Notes\nImportant items\nFix login", bytes: "Baseline", structure: "None unless a reader infers it", diff: "Excellent" },
+  { format: "Markdown", sample: "# Project Notes\n## Important items\n- Fix login", bytes: "Usually a few extra punctuation characters", structure: "Explicit headings, lists, emphasis, links, and code", diff: "Excellent" },
+  { format: "HTML", sample: "<h1>Project Notes</h1>\n<h2>Important items</h2>\n<ul><li>Fix login</li></ul>", bytes: "Much higher", structure: "Explicit and highly controllable", diff: "Good, but noisy" },
+  { format: "DOCX", sample: "Binary ZIP/XML package", bytes: "Far higher", structure: "Rich, application-managed document model", diff: "Poor in ordinary Git workflows" },
+];
+
+const sources = [
+  { label: "CommonMark specification", href: "https://spec.commonmark.org/current/", note: "Definition, history, parsing rules, and standardized syntax behavior." },
+  { label: "Daring Fireball: Markdown", href: "https://daringfireball.net/projects/markdown/", note: "John Gruber's original project and design philosophy." },
+  { label: "GitHub Flavored Markdown specification", href: "https://github.github.com/gfm/", note: "GitHub's CommonMark-based dialect, including tables, task lists, and other extensions." },
+  { label: "Stack Overflow 2024 Developer Survey", href: "https://survey.stackoverflow.co/2024/technology", note: "Reported Markdown as the most admired technology in its asynchronous-tools category, at 84%." },
+  { label: "AGENTS.md", href: "https://agents.md/", note: "A Markdown-based convention for supplying project instructions to AI coding agents." },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta name="description" content="A complete visual explainer for Markdown: what .md files are, how the syntax works, overhead versus TXT, dialects, tooling, tradeoffs, and why AI accelerated its popularity." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Explainers" />
+    <meta property="og:title" content="Markdown (.md)" />
+    <meta property="og:description" content="Plain text with just enough structure for humans, software, Git, and AI." />
+    <meta property="og:url" content="https://explainers.uppercut-labs.workers.dev/markdown" />
+    <meta property="og:image" content="https://explainers.uppercut-labs.workers.dev/icons/app-icon-512.png" />
+    <title>Markdown (.md) — Explainers</title>
+    <meta name="application-name" content="Uppercut Labs Explainers" />
+    <meta name="apple-mobile-web-app-title" content="Explainers" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href="/icons/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <script is:inline src="/pwa.js" defer></script>
+  </head>
+  <body class="explainer-page-with-intro">
+    <ExplainerPageIntro
+      title="Markdown (.md)"
+      hook="Markdown is ordinary plain text carrying a thin layer of visible structure. Humans can read the source, software can render it, Git can compare it, and AI can consume or produce it without first unpacking a proprietary document format."
+    />
+
+    <main>
+      <section class="hero grid two">
+        <div>
+          <p class="eyebrow">The mental model</p>
+          <h1>TXT with a shared set of visual cues</h1>
+          <p class="lede">A Markdown file does not contain fonts, pages, hidden formatting runs, or a rich document canvas. It contains Unicode text. Characters such as <code>#</code>, <code>-</code>, <code>*</code>, backticks, brackets, and parentheses tell a compatible parser what role a passage should have.</p>
+          <div class="pill-row">
+            <span>.md</span><span>plain text</span><span>lightweight markup</span><span>portable</span><span>Git-friendly</span>
+          </div>
+        </div>
+        <div class="transform" aria-label="Markdown source transformed into rendered content">
+          <div class="panel source"><b>Source</b><pre># Launch plan
+
+**Goal:** ship safely
+
+- Build
+- Test
+- Deploy</pre></div>
+          <div class="arrow">→</div>
+          <div class="panel rendered"><b>Rendered</b><h2>Launch plan</h2><p><strong>Goal:</strong> ship safely</p><ul><li>Build</li><li>Test</li><li>Deploy</li></ul></div>
+        </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Identity</p>
+        <h2>What Markdown is—and is not</h2>
+        <div class="cards three">
+          <article><h3>A syntax</h3><p>Markdown is a family of conventions for marking document structure inside readable plain text.</p></article>
+          <article><h3>A source format</h3><p>The <code>.md</code> file is commonly the editable source. A renderer may turn it into HTML, PDF, DOCX, slides, or another output.</p></article>
+          <article><h3>Not one universal implementation</h3><p>“Markdown” names an ecosystem. CommonMark, GitHub Flavored Markdown, MDX, Obsidian, Pandoc, and other dialects overlap but are not identical.</p></article>
+        </div>
+        <div class="callout"><strong>Important distinction:</strong> the characters are the durable file; the polished page is one interpretation of them. Two apps can render the same file differently without changing the underlying text.</div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Origins</p>
+        <h2>Why it was created</h2>
+        <div class="timeline">
+          <article><span>Before 2004</span><h3>Plain text was portable but visually weak</h3><p>Email and forum writers already used informal cues such as asterisks for emphasis, quoted lines, and dashed lists.</p></article>
+          <article><span>2004</span><h3>John Gruber released Markdown</h3><p>With help from Aaron Swartz, Gruber published a syntax and a Perl converter. The core promise was that the source should remain readable as-is while converting cleanly to HTML.</p></article>
+          <article><span>2010s</span><h3>Git hosting made it infrastructural</h3><p>README files, issues, pull requests, wikis, documentation sites, static-site generators, and notebooks made Markdown a default interface for technical writing.</p></article>
+          <article><span>2020s</span><h3>AI turned the default into a pipeline</h3><p>Prompts, model responses, agent instructions, plans, specs, evaluation reports, and repository context increasingly move through Markdown from beginning to end.</p></article>
+        </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Syntax map</p>
+        <h2>A small vocabulary covers most documents</h2>
+        <div class="syntax-table">
+          {syntax.map((item) => <div class="syntax-row"><code>{item.source}</code><span class="result">{item.result}</span><span>{item.meaning}</span></div>)}
+        </div>
+        <p class="note">Most daily Markdown is headings, paragraphs, lists, links, emphasis, and fenced code. Tables, task lists, footnotes, math, diagrams, metadata, and embedded components depend more heavily on the chosen dialect and renderer.</p>
+      </section>
+
+      <section>
+        <p class="eyebrow">The TXT comparison</p>
+        <h2>How much overhead does Markdown add?</h2>
+        <p class="section-intro">Very little in storage, but much more in meaning. Markdown adds characters rather than a separate formatting layer. In an ordinary note, the markup may be only a small fraction of the file; in a link-heavy table or documentation page, it can be more noticeable.</p>
+        <div class="comparison-table">
+          <div class="comparison-row header"><span>Format</span><span>Representative source</span><span>Storage overhead</span><span>Machine-visible structure</span><span>Version-control fit</span></div>
+          {overheadRows.map((row) => <div class="comparison-row"><strong>{row.format}</strong><code>{row.sample}</code><span>{row.bytes}</span><span>{row.structure}</span><span>{row.diff}</span></div>)}
+        </div>
+        <div class="cards two">
+          <article class="accent"><h3>What Markdown costs over TXT</h3><ul><li>A few punctuation characters</li><li>Some escaping when punctuation should be literal</li><li>Rules a writer and renderer must agree on</li><li>Possible dialect incompatibilities</li></ul></article>
+          <article class="accent"><h3>What that overhead buys</h3><ul><li>Hierarchy and navigation</li><li>Clickable links and images</li><li>Semantic code blocks</li><li>Lists, tables, and tasks</li><li>Reliable conversion into richer formats</li></ul></article>
+        </div>
+        <div class="verdict"><span>Practical verdict</span><strong>Markdown is much closer to TXT than to a word-processing file.</strong><p>Its overhead is mostly visible punctuation, not hidden document machinery. That is why a damaged renderer rarely destroys access to the content: another text editor can still open the file.</p></div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Why AI changed the curve</p>
+        <h2>Markdown is unusually well matched to language models</h2>
+        <div class="ai-flow">
+          <div><b>Human intent</b><small>prompt, notes, requirements</small></div><span>→</span>
+          <div><b>Markdown structure</b><small>headings, lists, code, tables</small></div><span>→</span>
+          <div><b>Model context</b><small>plain tokens with visible hierarchy</small></div><span>→</span>
+          <div><b>Reusable output</b><small>README, spec, issue, docs, webpage</small></div>
+        </div>
+        <div class="cards three">
+          <article><h3>No extraction tax</h3><p>A model-facing system can usually pass Markdown directly. DOCX, PDF, and web pages often require parsing, cleanup, layout recovery, or OCR first.</p></article>
+          <article><h3>Structure survives tokenization</h3><p>Headings, bullets, code fences, and labels remain explicit in the text stream. They give both humans and models useful boundaries without a verbose schema.</p></article>
+          <article><h3>Outputs are immediately deployable</h3><p>An AI answer can become a README, issue, pull-request description, documentation page, prompt file, spec, or agent instruction file with little transformation.</p></article>
+        </div>
+        <div class="callout ai"><strong>Explosion, not invention:</strong> AI did not make Markdown popular from nothing. GitHub, developer documentation, static sites, notebooks, and chat platforms had already established it. AI dramatically expanded the number of people and systems generating Markdown, and moved it from “documentation syntax” toward a general interchange format between people, models, tools, and repositories.</div>
+        <div class="evidence">
+          <div><span class="big">84%</span><p>Stack Overflow's 2024 survey reported an 84% “admired” score for Markdown in asynchronous tools—the highest admired score in the survey's technology section.</p></div>
+          <div><span class="big">AGENTS.md</span><p>Repository-level AI instructions commonly use Markdown because it is easy for maintainers to review and for coding agents to ingest alongside source code.</p></div>
+          <div><span class="big">One source</span><p>The same model-generated Markdown can feed GitHub, documentation sites, note systems, static-site builders, and converters such as Pandoc.</p></div>
+        </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Ecosystem</p>
+        <h2>“Markdown support” needs a follow-up question</h2>
+        <div class="dialects">
+          <article><h3>Original Markdown</h3><p>The 2004 syntax and converter. Historically important, intentionally lightweight, and not a complete modern interoperability standard.</p></article>
+          <article><h3>CommonMark</h3><p>A detailed specification created to resolve ambiguous parsing behavior and make implementations more consistent.</p></article>
+          <article><h3>GitHub Flavored Markdown</h3><p>CommonMark plus GitHub-oriented extensions such as tables, task-list items, strikethrough, and autolinks.</p></article>
+          <article><h3>MDX</h3><p>Markdown combined with JSX components. Powerful for application-backed documentation, but no longer plain portable Markdown in the strictest sense.</p></article>
+          <article><h3>App-specific Markdown</h3><p>Obsidian wikilinks, callouts, diagrams, front matter, math, footnotes, and other extensions may work only in certain tools.</p></article>
+          <article><h3>Pandoc-style publishing</h3><p>Extends Markdown into a document conversion system that can target HTML, PDF, EPUB, Word, slides, and scholarly formats.</p></article>
+        </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Where it fits</p>
+        <h2>Excellent source format; limited final-layout format</h2>
+        <div class="fit-grid">
+          <article class="good"><h3>Strong fit</h3><ul><li>README and repository documentation</li><li>Technical tutorials and API guides</li><li>Notes and personal knowledge bases</li><li>Specifications, ADRs, RFCs, and tickets</li><li>Prompts and agent instructions</li><li>Static websites and blogs</li><li>Change logs and release notes</li></ul></article>
+          <article class="bad"><h3>Weak fit</h3><ul><li>Pixel-exact brochures and magazines</li><li>Complex print pagination</li><li>Highly styled résumés without a template layer</li><li>Forms with sophisticated layout behavior</li><li>Collaborative editing that depends on tracked visual changes</li><li>Documents where exact rendering is legally material</li></ul></article>
+        </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Operational details</p>
+        <h2>What actually happens when a .md file opens</h2>
+        <ol class="steps">
+          <li><span>1</span><div><h3>An editor reads text</h3><p>At the lowest level, the file is decoded using a character encoding—usually UTF-8.</p></div></li>
+          <li><span>2</span><div><h3>A parser identifies blocks and inline elements</h3><p>It decides what counts as a heading, paragraph, list, link, code span, or raw HTML according to its dialect.</p></div></li>
+          <li><span>3</span><div><h3>A renderer creates an output</h3><p>The parser's structure may become HTML, styled preview components, terminal formatting, PDF, or another document tree.</p></div></li>
+          <li><span>4</span><div><h3>A theme supplies appearance</h3><p>Markdown itself rarely specifies typography, spacing, colors, or page layout. CSS, an application theme, or a conversion template does that work.</p></div></li>
+        </ol>
+      </section>
+
+      <section>
+        <p class="eyebrow">Risks and tradeoffs</p>
+        <h2>The simplicity moves complexity elsewhere</h2>
+        <div class="cards three">
+          <article><h3>Dialect drift</h3><p>A table, footnote, wikilink, or diagram may render in one application and appear as raw text in another.</p></article>
+          <article><h3>Rendering can be unsafe</h3><p>Systems that permit raw HTML or unsafe links must sanitize output before publishing untrusted Markdown.</p></article>
+          <article><h3>Layout is indirect</h3><p>Writers trade visual control for portability. Precise appearance belongs to the renderer and theme, not usually to the file.</p></article>
+          <article><h3>Whitespace matters</h3><p>Indentation, blank lines, and fence placement can change parsing in ways that surprise casual users.</p></article>
+          <article><h3>Large documents can become awkward</h3><p>Markdown has no universal native model for cross-references, reusable components, citations, or document-wide validation.</p></article>
+          <article><h3>AI can produce plausible broken syntax</h3><p>Nested fences, malformed tables, hallucinated links, and incompatible extensions still require previewing and validation.</p></article>
+        </div>
+      </section>
+
+      <section>
+        <p class="eyebrow">Decision guide</p>
+        <h2>Choose Markdown when content matters more than canvas</h2>
+        <div class="decision">
+          <div><span>Need readable source?</span><b>Yes</b></div>
+          <div><span>Need Git diffs and merges?</span><b>Yes</b></div>
+          <div><span>Need AI to read and write it directly?</span><b>Yes</b></div>
+          <div><span>Need exact page layout inside the source file?</span><b class="no">No</b></div>
+          <div><span>Need one source to publish in several forms?</span><b>Yes</b></div>
+        </div>
+        <div class="summary"><h3>The one-sentence explanation</h3><p>Markdown is a human-readable plain-text document source that adds a small amount of visible punctuation to communicate structure, gaining enormous interoperability with Git, web publishing, developer tools, and AI while giving up the exact visual control of a rich document format.</p></div>
+      </section>
+
+      <section class="sources">
+        <p class="eyebrow">Research trail</p>
+        <h2>Primary references and further reading</h2>
+        <div class="source-list">{sources.map((source) => <a href={source.href} target="_blank" rel="noreferrer"><strong>{source.label}</strong><span>{source.note}</span></a>)}</div>
+      </section>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#0b1020; color:#f4f7ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100%; background:radial-gradient(circle at 85% 0%, rgba(84,117,255,.18), transparent 30rem), #0b1020; }
+  main { width:min(1180px, calc(100% - 32px)); margin:auto; padding:48px 0 96px; }
+  section { padding:64px 0; border-bottom:1px solid rgba(255,255,255,.1); }
+  h1,h2,h3,p { margin-top:0; }
+  h1 { font-size:clamp(2.6rem, 6vw, 5.7rem); letter-spacing:-.055em; line-height:.95; max-width:850px; }
+  h2 { font-size:clamp(2rem, 4vw, 3.7rem); letter-spacing:-.04em; line-height:1; max-width:850px; }
+  h3 { letter-spacing:-.02em; }
+  p, li { color:#b8c1d9; line-height:1.7; }
+  code, pre { font-family:"SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+  code { color:#c7d2fe; }
+  .eyebrow { color:#8ea4ff; font-weight:800; letter-spacing:.16em; text-transform:uppercase; font-size:.78rem; }
+  .lede,.section-intro { font-size:1.15rem; max-width:800px; }
+  .grid.two { display:grid; grid-template-columns:1.05fr .95fr; gap:42px; align-items:center; }
+  .pill-row { display:flex; flex-wrap:wrap; gap:8px; }
+  .pill-row span { border:1px solid rgba(142,164,255,.35); background:rgba(84,117,255,.1); border-radius:999px; padding:8px 12px; font-weight:700; font-size:.85rem; }
+  .transform { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; }
+  .panel { min-height:285px; padding:20px; border-radius:22px; border:1px solid rgba(255,255,255,.12); background:#12192d; overflow:auto; }
+  .panel b { color:#8ea4ff; text-transform:uppercase; letter-spacing:.12em; font-size:.72rem; }
+  .panel pre { white-space:pre-wrap; color:#dce4ff; line-height:1.8; }
+  .panel h2 { font-size:2rem; margin-top:32px; }
+  .arrow { color:#8ea4ff; font-size:2rem; }
+  .cards { display:grid; gap:16px; margin-top:28px; }
+  .cards.two { grid-template-columns:repeat(2,1fr); }
+  .cards.three { grid-template-columns:repeat(3,1fr); }
+  .cards article,.dialects article,.fit-grid article { border:1px solid rgba(255,255,255,.11); border-radius:20px; padding:24px; background:rgba(18,25,45,.82); }
+  .cards article p,.dialects article p { margin-bottom:0; }
+  .accent { border-top:3px solid #8ea4ff !important; }
+  .callout { margin-top:22px; border-left:4px solid #8ea4ff; padding:18px 20px; background:rgba(84,117,255,.09); border-radius:0 16px 16px 0; color:#cbd4ec; line-height:1.7; }
+  .callout.ai { border-left-color:#74e6c4; background:rgba(44,202,158,.08); }
+  .timeline { margin-top:30px; display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .timeline article { position:relative; border-top:2px solid #5475ff; padding-top:18px; }
+  .timeline span { color:#8ea4ff; font-weight:900; }
+  .syntax-table { margin-top:28px; border:1px solid rgba(255,255,255,.11); border-radius:20px; overflow:hidden; }
+  .syntax-row { display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:16px; padding:16px 18px; border-bottom:1px solid rgba(255,255,255,.08); align-items:center; }
+  .syntax-row:last-child { border-bottom:0; }
+  .syntax-row .result { color:#fff; font-weight:800; }
+  .note { font-size:.92rem; margin-top:16px; }
+  .comparison-table { margin:30px 0; overflow:auto; border:1px solid rgba(255,255,255,.11); border-radius:20px; }
+  .comparison-row { min-width:980px; display:grid; grid-template-columns:.65fr 1.5fr .9fr 1.25fr .8fr; gap:16px; padding:16px 18px; border-bottom:1px solid rgba(255,255,255,.08); align-items:start; }
+  .comparison-row.header { color:#8ea4ff; text-transform:uppercase; letter-spacing:.09em; font-size:.7rem; font-weight:900; background:rgba(84,117,255,.08); }
+  .comparison-row code { white-space:pre-wrap; font-size:.78rem; }
+  .verdict,.summary { margin-top:24px; padding:28px; border-radius:22px; background:linear-gradient(135deg, rgba(84,117,255,.2), rgba(116,230,196,.08)); border:1px solid rgba(142,164,255,.3); }
+  .verdict span { display:block; color:#8ea4ff; font-weight:900; text-transform:uppercase; letter-spacing:.12em; font-size:.75rem; }
+  .verdict strong { display:block; font-size:1.5rem; margin:8px 0; }
+  .verdict p,.summary p { margin-bottom:0; }
+  .ai-flow { display:grid; grid-template-columns:1fr auto 1fr auto 1fr auto 1fr; gap:10px; align-items:center; margin:30px 0; }
+  .ai-flow div { padding:18px; border-radius:18px; border:1px solid rgba(116,230,196,.25); background:rgba(44,202,158,.07); }
+  .ai-flow b,.ai-flow small { display:block; }
+  .ai-flow small { color:#9da9c4; margin-top:6px; }
+  .ai-flow > span { color:#74e6c4; font-size:1.5rem; }
+  .evidence { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:24px; }
+  .evidence > div { padding:22px; border-radius:20px; background:#12192d; border:1px solid rgba(255,255,255,.1); }
+  .big { display:block; font-size:2rem; color:#74e6c4; font-weight:900; letter-spacing:-.04em; }
+  .evidence p { margin:8px 0 0; }
+  .dialects { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px; }
+  .fit-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin-top:28px; }
+  .fit-grid .good { border-top:4px solid #74e6c4; }
+  .fit-grid .bad { border-top:4px solid #ff9b8c; }
+  .steps { list-style:none; padding:0; display:grid; gap:16px; margin-top:28px; }
+  .steps li { display:grid; grid-template-columns:52px 1fr; gap:18px; border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:20px; background:#12192d; }
+  .steps li > span { display:grid; place-items:center; width:44px; height:44px; border-radius:50%; background:#5475ff; color:white; font-weight:900; }
+  .steps h3 { margin-bottom:5px; }
+  .steps p { margin-bottom:0; }
+  .decision { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-top:28px; }
+  .decision div { padding:18px; border-radius:18px; background:#12192d; border:1px solid rgba(255,255,255,.1); }
+  .decision span,.decision b { display:block; }
+  .decision span { min-height:54px; color:#b8c1d9; }
+  .decision b { color:#74e6c4; font-size:1.4rem; }
+  .decision b.no { color:#ff9b8c; }
+  .source-list { display:grid; gap:10px; margin-top:28px; }
+  .source-list a { display:grid; grid-template-columns:.8fr 1.2fr; gap:20px; text-decoration:none; border:1px solid rgba(255,255,255,.1); background:#12192d; border-radius:16px; padding:18px; }
+  .source-list strong { color:#dce4ff; }
+  .source-list span { color:#9da9c4; }
+  @media (max-width:900px) {
+    .grid.two,.cards.three,.timeline,.dialects,.evidence,.decision { grid-template-columns:1fr 1fr; }
+    .ai-flow { grid-template-columns:1fr; }
+    .ai-flow > span { transform:rotate(90deg); justify-self:center; }
+  }
+  @media (max-width:640px) {
+    main { width:min(100% - 22px, 1180px); padding-top:20px; }
+    section { padding:44px 0; }
+    .grid.two,.cards.two,.cards.three,.timeline,.dialects,.evidence,.fit-grid,.decision { grid-template-columns:1fr; }
+    .transform { grid-template-columns:1fr; }
+    .transform .arrow { transform:rotate(90deg); justify-self:center; }
+    .syntax-row { grid-template-columns:1fr; }
+    .source-list a { grid-template-columns:1fr; gap:6px; }
+  }
+</style>
