@@ -9,6 +9,7 @@ A single Astro project deployed to the existing Cloudflare Worker:
 ## Catalog routes
 
 - `/`
+- `/free-zapier-alternatives`
 - `/obsidian-on-servers`
 - `/npm-and-npx`
 - `/publish-a-website`
@@ -23,13 +24,16 @@ The homepage defaults to **Newest first**, using each card's explicit `data-publ
 
 ## Project structure
 
+- `public/index.html` is the sole homepage and catalog source.
 - `public/` contains self-contained static explainers and shared assets. Astro copies them into the build.
 - `src/pages/` contains Astro-owned routes.
 - `src/components/` contains Astro and React components used by Astro-owned routes.
-- `scripts/check-route-ownership.mjs` rejects routes owned by both `public/` and `src/pages/`.
+- `scripts/check-route-ownership.mjs` rejects duplicate route ownership, owned routes missing from the catalog, catalog links without owners, and duplicate catalog links.
 - `scripts/normalize-explainer-pages.mjs` applies the title and navigation contract to older self-contained pages after Astro builds.
 - `docs/adr/0001-explainer-route-and-catalog-contract.md` is the authoritative explainer publishing contract.
 - `wrangler.jsonc` deploys Astro's `dist/` output to the existing `explainers` Worker.
+
+There is intentionally no root-level `index.html`; keeping the homepage only in `public/index.html` prevents two catalog copies from drifting apart.
 
 ## Route ownership rule
 
@@ -39,6 +43,8 @@ A route must use exactly one source form:
 - Astro: `src/pages/example.astro`
 
 Never create both. `npm run build` fails before Astro starts when ownership collides.
+
+Every owned explainer route must also appear exactly once in the homepage catalog, and every catalog link must resolve to an owned route.
 
 ## Page identity rule
 
@@ -78,7 +84,7 @@ npm run build
 
 `npm run build` automatically runs:
 
-1. `prebuild` — route ownership validation
+1. `prebuild` — route ownership and catalog completeness validation
 2. `build` — Astro/Vite production build
 3. `postbuild` — normalization of legacy static pages
 
@@ -121,7 +127,7 @@ Manual deployment is optional after GitHub is connected to Workers Builds.
 3. Add a selectable `<article class="card">` to `public/index.html` with a separate link and an ISO `data-published` timestamp.
 4. Use in-flow branded return navigation.
 5. For React, prefer server-rendered output plus `client:load`.
-6. Run `npm run build` before merging.
+6. Run `npm run build`; the route/catalog validator must report the new route exactly once.
 
 ## Branding and PWA
 
