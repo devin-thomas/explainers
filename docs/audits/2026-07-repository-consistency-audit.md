@@ -3,7 +3,7 @@
 - **Audit date:** July 24, 2026
 - **Repository:** `devin-thomas/explainers`
 - **Default branch:** `main`
-- **Audited baseline:** commit `4d18a2474efea779e509e0d56907aca01dc62361`
+- **Audited baseline:** commit `d09cadc3edc0cc0091c703e621dde453d66e2fae`
 - **Production hostname:** `explainers.uppercut-labs.workers.dev`
 - **Cloudflare Worker:** `explainers`
 - **Package version:** `1.4.0`
@@ -52,14 +52,17 @@ Several newer explainers include:
 - distinctions between official facts and informed recommendations;
 - and interactive decision aids.
 
+The Markdown explainer also demonstrates a useful content-first Astro implementation with static data arrays and article markup, although it still repeats the document head and contains an internal expressive `h1` beneath the shared canonical intro.
+
 These are useful foundations for the content standard.
 
 ## Current route inventory
 
-The catalog baseline contains ten published explainers.
+The catalog baseline contains eleven published explainers.
 
 | Route | Canonical title | Owner form | Main implementation style | Initial consistency note |
 |---|---|---|---|---|
+| `/markdown` | Markdown (.md) | Astro | Static Astro markup with page-scoped CSS | Strong content-first direction and sourcing; repeats the full document head and includes an expressive internal `h1` hidden by the shared-intro CSS contract |
 | `/free-zapier-alternatives` | Free Zapier Alternatives | Static | HTML, CSS, vanilla JS, fetched fragments | Core article is assembled after client-side fetch; visible hero heading does not use the canonical title verbatim |
 | `/obsidian-on-servers` | Obsidian on Servers | Astro | React/MUI full-page component | Strong sourcing and current research; independent local theme and full-page shell remain |
 | `/npm-and-npx` | npm & npx | Astro | React/MUI full-page component | Useful reference candidate; repeated metadata, duplicate internal shell, missing-import compatibility wrapper |
@@ -103,6 +106,8 @@ A shared layout should own the document shell while page metadata comes from one
 ### 3. Canonical identity is documented but not comprehensively enforced
 
 The route validator checks ownership and catalog completeness. It does not currently validate built-page `h1`, document title, Open Graph title, description, canonical URL, or publication metadata.
+
+Several pages keep an expressive internal `h1` and rely on global CSS to hide it after the shared canonical intro renders. This is fragile because the selector assumes the first descendant `h1` is always a duplicate.
 
 The postbuild normalizer repairs a manually listed subset of static pages, which leaves correctness dependent on remembering to update another list.
 
