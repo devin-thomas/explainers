@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Docker for the Localhost Lab Monster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+  :root{
+    --bg: #10141B;
+    --bg-elev: #171D26;
+    --bg-elev-2: #1F2733;
+    --code-bg: #0B0F14;
+    --border: #2A3340;
+    --border-soft: #232B37;
+    --text: #E3E8EE;
+    --text-dim: #8B96A5;
+    --text-faint: #5C6675;
+
+    --blue: #4C8DFF;
+    --blue-dim: #1E2E4D;
+    --cyan: #22D3EE;
+    --cyan-dim: #113844;
+    --green: #4ADE80;
+    --green-dim: #113321;
+    --amber: #FBBF24;
+    --amber-dim: #3A2E0D;
+    --red: #F87171;
+    --red-dim: #3A1616;
+
+    --r-s: 10px;
+    --r-m: 14px;
+    --r-l: 20px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Manrope',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:48px;
+  }
+  code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+  .msi{
+    font-family:'Material Symbols Outlined';
+    font-weight:400;font-style:normal;font-size:22px;line-height:1;
+    display:inline-block;vertical-align:middle;
+    font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+  }
+  .msi.fill{font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24;}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(16,20,27,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+    padding:12px 16px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .prompt-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0;}
+  .topbar .mono{font-size:13px;color:var(--text-dim);}
+  .topbar .mono b{color:var(--text);font-weight:600;}
+
+  .container{max-width:680px;margin:0 auto;padding:0 16px;}
+
+  /* ===== Hero ===== */
+  .hero{padding:32px 16px 8px;}
+  .kicker{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;font-weight:600;letter-spacing:.02em;
+    color:var(--cyan);
+    background:var(--cyan-dim);
+    border:1px solid rgba(34,211,238,0.25);
+    padding:6px 12px;border-radius:100px;
+    margin-bottom:18px;
+  }
+  .hero h1{
+    font-size:clamp(28px,8vw,38px);
+    font-weight:800;line-height:1.1;letter-spacing:-.02em;
+    margin:0 0 14px;
+  }
+  .hero h1 .accent{color:var(--blue);}
+  .hero p.lede{font-size:15.5px;line-height:1.6;color:var(--text-dim);margin:0 0 22px;max-width:58ch;}
+
+  /* ===== Terminal chrome ===== */
+  .term{
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:var(--r-m);
+    overflow:hidden;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+    margin:14px 0;
+  }
+  .term-bar{
+    display:flex;align-items:center;gap:8px;
+    padding:9px 14px;
+    background:var(--bg-elev-2);
+    border-bottom:1px solid var(--border);
+  }
+  .term-dots{display:flex;gap:6px;}
+  .term-dots span{width:10px;height:10px;border-radius:50%;}
+  .term-dots span:nth-child(1){background:#F87171;}
+  .term-dots span:nth-child(2){background:#FBBF24;}
+  .term-dots span:nth-child(3){background:#4ADE80;}
+  .term-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;color:var(--text-dim);margin-left:6px;
+  }
+  .term-body{padding:14px 16px;font-size:13px;line-height:1.65;overflow-x:auto;}
+  .term pre{margin:0;background:transparent !important;padding:0 !important;}
+  .term pre code.hljs{background:transparent !important;padding:0 !important;font-size:13px;}
+  .term-body .line{white-space:pre;color:var(--text);}
+  .term-body .prompt{color:var(--green);}
+  .term-body .out{color:var(--text-dim);}
+
+  /* ===== Sections ===== */
+  section{padding:38px 0 6px;}
+  .section-head{margin-bottom:16px;}
+  .section-kicker{
+    display:flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;font-weight:600;letter-spacing:.04em;
+    color:var(--blue);text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .section-kicker .msi{font-size:17px;}
+  h2.section-title{font-size:22px;font-weight:800;margin:0;letter-spacing:-.01em;}
+  p.section-sub{font-size:14px;color:var(--text-dim);margin:6px 0 0;line-height:1.55;}
+
+  /* ===== Pain cards ===== */
+  .pain-card{
+    display:flex;gap:12px;align-items:flex-start;
+    background:var(--bg-elev);
+    border:1px solid var(--border-soft);
+    border-left:3px solid var(--red);
+    border-radius:var(--r-s);
+    padding:14px 16px;
+    margin-bottom:10px;
+  }
+  .pain-card .msi{color:var(--red);flex-shrink:0;margin-top:2px;}
+  .pain-card h4{margin:0 0 3px;font-size:14.5px;font-weight:700;}
+  .pain-card p{margin:0;font-size:13px;line-height:1.5;color:var(--text-dim);}
+
+  /* ===== Concept trio (Dockerfile -> Image -> Container) ===== */
+  .concept-chain{display:flex;flex-direction:column;gap:0;margin-top:8px;}
+  .concept-card{
+    background:var(--bg-elev);
+    border:1px solid var(--border-soft);
+    border-radius:var(--r-m);
+    padding:16px;
+    position:relative;
+  }
+  .concept-card .tag{
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+    letter-spacing:.05em;text-transform:uppercase;
+    padding:3px 9px;border-radius:6px;display:inline-block;margin-bottom:8px;
+  }
+  .concept-card.c1 .tag{background:var(--blue-dim);color:var(--blue);}
+  .concept-card.c2 .tag{background:var(--cyan-dim);color:var(--cyan);}
+  .concept-card.c3 .tag{background:var(--green-dim);color:var(--green);}
+  .concept-card h4{margin:0 0 6px;font-size:16px;font-weight:700;}
+  .concept-card p{margin:0;font-size:13.5px;line-height:1.55;color:var(--text-dim);}
+  .concept-card .analogy{
+    margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);
+    font-size:12.5px;color:var(--text-faint);
+  }
+  .concept-card .analogy b{color:var(--text-dim);}
+  .chain-arrow{display:flex;justify-content:center;padding:6px 0;color:var(--text-faint);}
+  .chain-arrow .msi{font-size:20px;}
+
+  /* ===== Before/After split ===== */
+  .split-label{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;
+    letter-spacing:.05em;text-transform:uppercase;
+    padding:4px 10px;border-radius:6px;margin-bottom:8px;
+  }
+  .split-label.before{background:var(--red-dim);color:var(--red);}
+  .split-label.after{background:var(--green-dim);color:var(--green);}
+  .before-steps{
+    background:var(--bg-elev);border:1px solid var(--border-soft);
+    border-radius:var(--r-m);padding:14px 16px;margin-bottom:16px;
+  }
+  .before-steps ol{margin:8px 0 0;padding-left:20px;}
+  .before-steps li{font-size:13px;line-height:1.7;color:var(--text-dim);margin-bottom:2px;}
+  .before-steps li .mono{color:var(--text);font-size:12.5px;}
+
+  /* ===== File cards for full project walkthrough ===== */
+  .file-tree{
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.9;
+    background:var(--bg-elev);border:1px solid var(--border-soft);
+    border-radius:var(--r-s);padding:14px 16px;color:var(--text-dim);
+    margin:10px 0 18px;
+  }
+  .file-tree .fname{color:var(--text);}
+  .file-tree .dim{color:var(--text-faint);}
+
+  /* ===== Cheat table ===== */
+  .cheat-group{margin-bottom:18px;}
+  .cheat-group h4{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--blue);margin:0 0 8px;
+  }
+  .cheat-row{
+    display:flex;gap:12px;align-items:flex-start;
+    padding:9px 0;border-bottom:1px solid var(--border-soft);
+  }
+  .cheat-row:last-child{border-bottom:none;}
+  .cheat-row code{
+    flex-shrink:0;font-size:12px;background:var(--bg-elev-2);
+    color:var(--cyan);padding:4px 8px;border-radius:6px;
+    white-space:nowrap;
+  }
+  .cheat-row span{font-size:12.5px;color:var(--text-dim);line-height:1.5;padding-top:3px;}
+
+  /* ===== Vocabulary table ===== */
+  .vocab-item{
+    display:grid;grid-template-columns:auto 1fr;gap:2px 14px;
+    padding:12px 0;border-bottom:1px solid var(--border-soft);
+  }
+  .vocab-item:last-child{border-bottom:none;}
+  .vocab-term{
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13.5px;
+    color:var(--text);grid-column:1;
+  }
+  .vocab-def{grid-column:1/-1;font-size:13px;color:var(--text-dim);line-height:1.55;margin-top:2px;}
+  .vocab-def b{color:var(--text-dim);font-weight:600;}
+  .vocab-def .think{color:var(--cyan);}
+
+  /* ===== Gotcha cards ===== */
+  .gotcha{
+    display:flex;gap:12px;align-items:flex-start;
+    background:var(--bg-elev);border:1px solid var(--border-soft);
+    border-left:3px solid var(--amber);
+    border-radius:var(--r-s);padding:14px 16px;margin-bottom:10px;
+  }
+  .gotcha .msi{color:var(--amber);flex-shrink:0;margin-top:2px;}
+  .gotcha h4{margin:0 0 3px;font-size:14px;font-weight:700;}
+  .gotcha p{margin:0;font-size:12.5px;line-height:1.5;color:var(--text-dim);}
+
+  /* ===== Callout ===== */
+  .callout{
+    display:flex;gap:12px;align-items:flex-start;
+    background:var(--blue-dim);border:1px solid rgba(76,141,255,0.25);
+    border-radius:var(--r-m);padding:16px;margin-top:18px;
+  }
+  .callout .msi{color:var(--blue);font-size:24px;flex-shrink:0;margin-top:1px;}
+  .callout p{margin:0;font-size:13px;line-height:1.55;color:var(--text);}
+  .callout strong{display:block;font-size:14px;margin-bottom:3px;color:var(--text);}
+
+  .hr{height:1px;background:var(--border-soft);margin:36px 0 0;}
+  footer{padding:34px 16px 8px;text-align:center;}
+  footer p{font-size:11.5px;color:var(--text-faint);line-height:1.6;margin:0;font-family:'JetBrains Mono',monospace;}
+
+  .reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease;}
+  .reveal.in{opacity:1;transform:none;}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;} html{scroll-behavior:auto;}}
+
+  a{color:var(--cyan);}
+  ::selection{background:rgba(76,141,255,0.35);}
+</style>
+</head>
+<body>
+<nav aria-label="Explainer navigation" style="padding:12px 16px;"><a href="/">← Back to Explainers</a></nav>
+
+<div class="topbar">
+  <span class="prompt-dot"></span>
+  <span class="mono">~/projects <b>$</b> docker --deep-dive</span>
+</div>
+
+<div class="hero">
+  <div class="container" style="padding:0;">
+    <span class="kicker"><span class="msi" style="font-size:15px;">terminal</span>for devs who ship to localhost</span>
+    <h1>You've built things.<br>You've just never <span class="accent">shipped</span> them.</h1>
+    <p class="lede">You know Python, JS, maybe Go or Rust at their core. You're fast on the CLI. But everything you've ever built has lived and died on one machine — yours. This is the deep dive on the one tool that gets you from "works on my laptop" to "runs anywhere, for anyone."</p>
+
+    <div class="term reveal">
+      <div class="term-bar">
+        <div class="term-dots"><span></span><span></span><span></span></div>
+        <span class="term-label">zsh — your entire stack, one command</span>
+      </div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">$</span> docker compose up -d</div>
+        <div class="line out"> ✔ Network lab_default        Created</div>
+        <div class="line out"> ✔ Container lab-db-1          Started</div>
+        <div class="line out"> ✔ Container lab-cache-1       Started</div>
+        <div class="line out"> ✔ Container lab-api-1         Started</div>
+        <div class="line"><span class="prompt">$</span> curl localhost:5000/health</div>
+        <div class="line out">{"status":"ok","db":"connected"}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- THE MONSTER'S CURRENT LIFE -->
+  <section class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">psychology</span>the pattern</div>
+      <h2 class="section-title">The localhost lab monster's actual problems</h2>
+      <p class="section-sub">None of these are skill problems. They're environment problems — and Docker exists specifically to kill them.</p>
+    </div>
+
+    <div class="pain-card">
+      <span class="msi">layers</span>
+      <div><h4>Every project fights for the same Python/Node</h4><p>Project A needs Python 3.9, Project B needs 3.12. You juggle <span class="mono">pyenv</span>, <span class="mono">nvm</span>, and virtualenvs, and something always breaks after an OS update.</p></div>
+    </div>
+    <div class="pain-card">
+      <span class="msi">storage</span>
+      <div><h4>Databases get installed globally and never leave</h4><p><span class="mono">brew install postgresql</span> once, and two years later you have three major versions fighting over port 5432 and no memory of how you configured any of them.</p></div>
+    </div>
+    <div class="pain-card">
+      <span class="msi">forward_to_inbox</span>
+      <div><h4>You can't hand your project to anyone</h4><p>Sending a friend your repo means sending them a README of 15 manual setup steps — half of which you've forgotten you even did.</p></div>
+    </div>
+    <div class="pain-card">
+      <span class="msi">help</span>
+      <div><h4>"Deployment" is a black box</h4><p>You can write the logic. You have no idea what actually happens between <span class="mono">git push</span> and a real server running your code.</p></div>
+    </div>
+  </section>
+
+  <!-- MENTAL MODEL -->
+  <section class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">psychology_alt</span>the mental model</div>
+      <h2 class="section-title">Think of it in terms you already know</h2>
+      <p class="section-sub">You already understand classes and instances. Docker's three core concepts map directly onto that.</p>
+    </div>
+
+    <div class="concept-chain">
+      <div class="concept-card c1">
+        <span class="tag">Dockerfile</span>
+        <h4>The recipe you write</h4>
+        <p>A plain text file of instructions: start from this base, install these dependencies, copy in this code, run this command. It's source code you commit to git.</p>
+        <div class="analogy"><b>Like:</b> a class definition — the blueprint, not yet built or running.</div>
+      </div>
+      <div class="chain-arrow"><span class="msi">arrow_downward</span></div>
+      <div class="concept-card c2">
+        <span class="tag">Image</span>
+        <h4>The frozen, built artifact</h4>
+        <p>Running <span class="mono">docker build</span> on a Dockerfile produces an image — a versioned, immutable snapshot containing your code and every dependency it needs. It never changes once built.</p>
+        <div class="analogy"><b>Like:</b> a compiled build — reproducible, and stamped with a tag like <span class="mono">myapp:1.2</span>.</div>
+      </div>
+      <div class="chain-arrow"><span class="msi">arrow_downward</span></div>
+      <div class="concept-card c3">
+        <span class="tag">Container</span>
+        <h4>A running instance of that image</h4>
+        <p><span class="mono">docker run</span> takes an image and instantiates it as a live, isolated process. Spin up five containers from one image — each is independent, and disposable.</p>
+        <div class="analogy"><b>Like:</b> an object instantiated from a class. Throw it away, make a new one, no side effects.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLAGSHIP BEFORE/AFTER -->
+  <section class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">bolt</span>the flagship example</div>
+      <h2 class="section-title">"I need Postgres + Redis + my API, running locally"</h2>
+      <p class="section-sub">This exact request is the single most common reason developers first reach for Docker. Here's both paths, side by side.</p>
+    </div>
+
+    <span class="split-label before"><span class="msi" style="font-size:14px;">close</span>without docker</span>
+    <div class="before-steps">
+      <ol>
+        <li><span class="mono">brew install postgresql@16</span> — installs system-wide</li>
+        <li><span class="mono">initdb</span>, then <span class="mono">pg_ctl start</span>, then manually create a user and database</li>
+        <li>Edit <span class="mono">pg_hba.conf</span> because auth rejects your connection</li>
+        <li><span class="mono">brew install redis</span>, configure it as a background service too</li>
+        <li>Six months later, a different project needs Postgres 14 — now they collide on the same port and binary</li>
+        <li>Uninstalling any of it cleanly is its own multi-step project</li>
+      </ol>
+    </div>
+
+    <span class="split-label after"><span class="msi" style="font-size:14px;">check</span>with docker</span>
+    <p style="font-size:13px;color:var(--text-dim);margin:0 0 4px;">One file, checked into your repo:</p>
+
+    <div class="term reveal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><span class="term-label">docker-compose.yml</span></div>
+      <div class="term-body"><pre><code class="language-yaml">services:
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/app
+    environment:
+      POSTGRES_DB: labdb
+      POSTGRES_USER: labuser
+      POSTGRES_PASSWORD: labpass
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: labdb
+      POSTGRES_USER: labuser
+      POSTGRES_PASSWORD: labpass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  cache:
+    image: redis:7
+
+volumes:
+  pgdata:</code></pre></div>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><span class="term-label">zsh</span></div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">$</span> docker compose up -d --build</div>
+        <div class="line out"> ✔ api, db, and cache all running in ~10 seconds</div>
+        <div class="line"><span class="prompt">$</span> docker compose down -v</div>
+        <div class="line out"> ✔ everything gone. your machine is exactly as clean as before.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="msi fill">groups</span>
+      <p><strong>This file is also how you start collaborating</strong>Commit <span class="mono">docker-compose.yml</span> to the repo. A friend clones it, runs one command, and gets the identical Postgres version, Redis version, and app — without installing any of it themselves. This is the exact artifact that turns a solo project into something someone else can run.</p>
+    </div>
+  </section>
+
+  <!-- THE FULL PROJECT FILES -->
+  <section class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">folder_open</span>the rest of the project</div>
+      <h2 class="section-title">Every file that makes the example above real</h2>
+      <p class="section-sub">A minimal Flask API that talks to Postgres — swap the language, the pattern is identical in Node, Go, or Ruby.</p>
+    </div>
+
+    <div class="file-tree">
+<span class="fname">my-project/</span><br>
+├── <span class="fname">app.py</span><br>
+├── <span class="fname">requirements.txt</span><br>
+├── <span class="fname">Dockerfile</span><br>
+├── <span class="fname">.dockerignore</span><br>
+└── <span class="fname">docker-compose.yml</span>  <span class="dim">← shown above</span>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><span class="term-label">app.py</span></div>
+      <div class="term-body"><pre><code class="language-python">from flask import Flask, jsonify
+import psycopg2
+import os
+
+app = Flask(__name__)
+
+def get_connection():
+    return psycopg2.connect(
+        host="db",
+        dbname=os.environ["POSTGRES_DB"],
+        user=os.environ["POSTGRES_USER"],
+        password=os.environ["POSTGRES_PASSWORD"],
+    )
+
+@app.route("/health")
+def health():
+    conn = get_connection()
+    conn.close()
+    return jsonify(status="ok", db="connected")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)</code></pre></div>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><span class="term-label">requirements.txt</span></div>
+      <div class="term-body"><pre><code class="language-plaintext">flask==3.0.3
+psycopg2-binary==2.9.9</code></pre></div>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><span class="term-label">Dockerfile</span></div>
+      <div class="term-body"><pre><code class="language-dockerfile">FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+CMD ["python", "app.py"]</code></pre></div>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><span class="term-label">.dockerignore</span></div>
+      <div class="term-body"><pre><code class="language-plaintext">__pycache__/
+*.pyc
+.venv/
+.git
+.env</code></pre></div>
+    </div>
+
+    <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">Notice the <span class="mono">volumes: - ./:/app</span> line in the compose file above — it bind-mounts your local folder straight into the container. Edit <span class="mono">app.py</span> on your machine, and the running container sees the change instantly. No rebuild, no redeploy, for pure code changes.</p>
+  </section>
+
+  <!-- SECOND SCENARIO: RUNTIME VERSION CONFLICTS -->
+  <section class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">swap_horiz</span>a second everyday scenario</div>
+      <h2 class="section-title">Running two Node versions without nvm</h2>
+      <p class="section-sub">Project A needs Node 18. Project B needs Node 20. Instead of juggling a version manager, hand each project its own disposable runtime.</p>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><span class="term-label">zsh</span></div>
+      <div class="term-body">
+        <div class="line"><span class="prompt">$</span> docker run --rm -it -v "$(pwd)":/app -w /app node:18-alpine node -v</div>
+        <div class="line out">v18.20.4</div>
+        <div class="line"><span class="prompt">$</span> docker run --rm -it -v "$(pwd)":/app -w /app node:20-alpine node -v</div>
+        <div class="line out">v20.16.0</div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">Both commands ran against the exact same folder on your machine, using two completely different, fully isolated Node installs — neither of which is "installed" on your laptop at all. Close the terminal and both runtimes disappear with it.</p>
+  </section>
+
+  <!-- VOCABULARY -->
+  <section class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">translate</span>quick reference</div>
+      <h2 class="section-title">Vocabulary, translated</h2>
+    </div>
+
+    <div class="vocab-item">
+      <span class="vocab-term">image</span>
+      <span class="vocab-def"><b>What it is:</b> An immutable, versioned snapshot of an app + its dependencies. <span class="think">Think: a compiled build artifact.</span></span>
+    </div>
+    <div class="vocab-item">
+      <span class="vocab-term">container</span>
+      <span class="vocab-def"><b>What it is:</b> A running, isolated instance of an image. <span class="think">Think: an object instantiated from a class.</span></span>
+    </div>
+    <div class="vocab-item">
+      <span class="vocab-term">volume</span>
+      <span class="vocab-def"><b>What it is:</b> Storage that lives outside the container's lifecycle, so data survives even after the container is deleted. <span class="think">Think: a database file living on an external drive, not the laptop itself.</span></span>
+    </div>
+    <div class="vocab-item">
+      <span class="vocab-term">port mapping</span>
+      <span class="vocab-def"><b>What it is:</b> Connecting a port inside the container to a port on your actual machine, e.g. <span class="mono">-p 5000:5000</span>. <span class="think">Think: forwarding a call to an extension.</span></span>
+    </div>
+    <div class="vocab-item">
+      <span class="vocab-term">registry</span>
+      <span class="vocab-def"><b>What it is:</b> A place images are stored and pulled from, like Docker Hub. <span class="think">Think: PyPI or npm, but for entire environments instead of single libraries.</span></span>
+    </div>
+    <div class="vocab-item">
+      <span class="vocab-term">compose</span>
+      <span class="vocab-def"><b>What it is:</b> A YAML file describing several containers that should run together as one stack. <span class="think">Think: package.json, but it declares running services instead of installed libraries.</span></span>
+    </div>
+  </section>
+
+  <!-- COMMAND CHEATSHEET -->
+  <section class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">code</span>command reference</div>
+      <h2 class="section-title">The commands you'll actually type</h2>
+    </div>
+
+    <div class="cheat-group">
+      <h4>Build &amp; run a single container</h4>
+      <div class="cheat-row"><code>docker build -t myapp:1.0 .</code><span>Build an image from the Dockerfile in this folder</span></div>
+      <div class="cheat-row"><code>docker run -d -p 5000:5000 myapp:1.0</code><span>Run it in the background, mapped to a local port</span></div>
+      <div class="cheat-row"><code>docker run --rm -it python:3.12 bash</code><span>Drop into a throwaway shell inside a fresh container</span></div>
+    </div>
+
+    <div class="cheat-group">
+      <h4>Working with compose</h4>
+      <div class="cheat-row"><code>docker compose up -d</code><span>Start every service defined in docker-compose.yml</span></div>
+      <div class="cheat-row"><code>docker compose up -d --build</code><span>Rebuild images first, then start everything</span></div>
+      <div class="cheat-row"><code>docker compose logs -f api</code><span>Stream live logs from one service</span></div>
+      <div class="cheat-row"><code>docker compose exec api bash</code><span>Open a shell inside a running service</span></div>
+      <div class="cheat-row"><code>docker compose down -v</code><span>Stop everything and delete its data too</span></div>
+    </div>
+
+    <div class="cheat-group">
+      <h4>Inspecting &amp; debugging</h4>
+      <div class="cheat-row"><code>docker ps</code><span>List running containers</span></div>
+      <div class="cheat-row"><code>docker ps -a</code><span>List every container, including stopped ones</span></div>
+      <div class="cheat-row"><code>docker logs -f myapp</code><span>Stream logs from a container by name</span></div>
+      <div class="cheat-row"><code>docker exec -it myapp bash</code><span>Shell into a specific running container</span></div>
+    </div>
+
+    <div class="cheat-group">
+      <h4>Cleaning up</h4>
+      <div class="cheat-row"><code>docker image prune</code><span>Delete unused, dangling images</span></div>
+      <div class="cheat-row"><code>docker system prune -a</code><span>Nuke every unused image, container, and network</span></div>
+      <div class="cheat-row"><code>docker volume ls</code><span>See what persistent data still exists</span></div>
+    </div>
+  </section>
+
+  <!-- ROOKIE GOTCHAS -->
+  <section class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">report</span>save yourself the pain</div>
+      <h2 class="section-title">Mistakes almost everyone makes first</h2>
+    </div>
+
+    <div class="gotcha">
+      <span class="msi">delete_sweep</span>
+      <div><h4>"My database data disappeared!"</h4><p>Forgetting the <span class="mono">volumes:</span> entry means all data lives only inside the container. Delete the container, and the data goes with it.</p></div>
+    </div>
+    <div class="gotcha">
+      <span class="msi">sync_problem</span>
+      <div><h4>Pinning nothing to <span class="mono">:latest</span></h4><p><span class="mono">postgres:latest</span> can silently become a different major version on a rebuild months later. Pin real versions: <span class="mono">postgres:16</span>.</p></div>
+    </div>
+    <div class="gotcha">
+      <span class="msi">unarchive</span>
+      <div><h4>Bloated images from skipping .dockerignore</h4><p>Without it, <span class="mono">COPY . .</span> drags your entire <span class="mono">node_modules</span> or <span class="mono">.git</span> folder into the image, making builds slow and huge.</p></div>
+    </div>
+    <div class="gotcha">
+      <span class="msi">lan</span>
+      <div><h4>Forgetting the port mapping</h4><p>A service running perfectly inside a container is invisible from your browser until you map it out with <span class="mono">-p host:container</span>.</p></div>
+    </div>
+    <div class="gotcha">
+      <span class="msi">admin_panel_settings</span>
+      <div><h4>Running everything as root inside the container</h4><p>The default user in most base images is root. Fine for a local lab experiment — worth fixing with a <span class="mono">USER</span> instruction before anything goes near a real server.</p></div>
+    </div>
+  </section>
+
+  <!-- BRIDGE TO BIGGER PICTURE -->
+  <section class="reveal">
+    <div class="callout" style="margin-top:0;">
+      <span class="msi fill">insights</span>
+      <div>
+        <strong>Where this leads</strong>
+        <p>A compose file running three containers on your laptop is a miniature version of what tools like Kubernetes do across hundreds of real servers — the same core idea of images and containers, just coordinated at a much larger scale. Learning to write a clean Dockerfile and compose file now is the exact on-ramp to understanding real deployment later, and it's the same file a teammate needs to stop depending on your memory of "how you set it up."</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+  <footer><p>// end of file — now go build the stack you've been avoiding.</p></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/plaintext.min.js"></script>
+<script>
+  if (window.hljs) { hljs.highlightAll(); }
+
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.1, rootMargin:'0px 0px -30px 0px'});
+  els.forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>

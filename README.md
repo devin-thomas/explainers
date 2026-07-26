@@ -19,6 +19,8 @@ A single Astro project deployed to the existing Cloudflare Worker:
 - `/astro`
 - `/ai-gamedev-compatibility-gemini`
 - `/ai-gamedev-compatibility`
+- `/docker-for-leaders`
+- `/docker-for-coders`
 
 The homepage defaults to **Newest first**, using each card's explicit `data-published` timestamp. It also supports oldest-first and alphabetical sorting.
 

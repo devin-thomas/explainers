@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Docker, Explained for Decision-Makers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;900&family=Roboto+Flex:opsz,wght@8..144,400..700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0">
+<style>
+  :root{
+    /* ===== Material 3 tonal tokens — seed: Google Blue × Docker Cyan ===== */
+    --md-primary: #0B57D0;
+    --md-on-primary: #FFFFFF;
+    --md-primary-container: #D3E3FD;
+    --md-on-primary-container: #041E49;
+
+    --md-secondary: #00677E;
+    --md-on-secondary: #FFFFFF;
+    --md-secondary-container: #B6EAFF;
+    --md-on-secondary-container: #001F26;
+
+    --md-tertiary: #825500;
+    --md-on-tertiary: #FFFFFF;
+    --md-tertiary-container: #FFDDB1;
+    --md-on-tertiary-container: #291800;
+
+    --md-error: #B3261E;
+    --md-error-container: #F9DEDC;
+    --md-on-error-container: #410E0B;
+
+    --md-surface: #F8F9FF;
+    --md-surface-dim: #D9D9E3;
+    --md-surface-container-lowest: #FFFFFF;
+    --md-surface-container-low: #F2F3FA;
+    --md-surface-container: #ECEDF4;
+    --md-surface-container-high: #E6E7EF;
+    --md-on-surface: #1A1C20;
+    --md-on-surface-variant: #44474E;
+    --md-outline: #74777F;
+    --md-outline-variant: #C4C6D0;
+
+    --e1: 0 1px 2px rgba(0,0,0,.30), 0 1px 3px 1px rgba(0,0,0,.15);
+    --e2: 0 1px 2px rgba(0,0,0,.30), 0 2px 6px 2px rgba(0,0,0,.15);
+    --e3: 0 4px 8px 3px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.30);
+
+    --radius-s: 12px;
+    --radius-m: 16px;
+    --radius-l: 24px;
+    --radius-xl: 28px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Roboto Flex','Roboto',sans-serif;
+    background:var(--md-surface);
+    color:var(--md-on-surface);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:64px;
+  }
+  .msi{
+    font-family:'Material Symbols Outlined';
+    font-weight:400;
+    font-style:normal;
+    font-size:24px;
+    line-height:1;
+    letter-spacing:normal;
+    text-transform:none;
+    white-space:nowrap;
+    word-wrap:normal;
+    direction:ltr;
+    -webkit-font-feature-settings:'liga';
+    font-feature-settings:'liga';
+    -webkit-font-smoothing:antialiased;
+    vertical-align:middle;
+    font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+    display:inline-block;
+  }
+  .msi.fill{ font-variation-settings:'FILL' 1,'wght' 500,'GRAD' 0,'opsz' 24; }
+
+  /* ===== Top App Bar ===== */
+  .app-bar{
+    position:sticky; top:0; z-index:50;
+    background:var(--md-surface-container-low);
+    display:flex; align-items:center; gap:12px;
+    padding:14px 16px;
+    box-shadow:var(--e1);
+    backdrop-filter:blur(8px);
+  }
+  .app-bar .brand-mark{
+    width:40px;height:40px;border-radius:var(--radius-s);
+    background:var(--md-primary);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .app-bar h1{font-size:20px;font-weight:600;margin:0;letter-spacing:0;line-height:1.2;}
+  .app-bar .subtitle{font-size:12px;color:var(--md-on-surface-variant);margin:0;font-weight:500;}
+
+  .container{max-width:640px;margin:0 auto;padding:0 16px;}
+
+  /* ===== Hero ===== */
+  .hero{
+    padding:32px 16px 28px;
+    background:linear-gradient(175deg, var(--md-primary-container) 0%, var(--md-surface) 78%);
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--md-on-primary-container);
+    background:rgba(255,255,255,.55);
+    padding:6px 12px;border-radius:100px;
+    margin-bottom:16px;
+  }
+  .hero h2{
+    font-size:clamp(30px,8vw,42px);
+    line-height:1.08;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    margin:0 0 14px;
+    color:var(--md-on-primary-container);
+  }
+  .hero p.lede{
+    font-size:16px; line-height:1.55;
+    color:var(--md-on-surface-variant);
+    max-width:56ch;
+    margin:0 0 24px;
+  }
+
+  /* Signature visual: shipping metaphor equivalence */
+  .equivalence{
+    display:flex; align-items:center; gap:10px;
+    background:var(--md-surface-container-lowest);
+    border-radius:var(--radius-l);
+    padding:18px 14px;
+    box-shadow:var(--e2);
+  }
+  .eq-item{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;}
+  .eq-icon-wrap{
+    width:56px;height:56px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .eq-item.physical .eq-icon-wrap{background:var(--md-secondary-container);color:var(--md-on-secondary-container);}
+  .eq-item.digital .eq-icon-wrap{background:var(--md-primary-container);color:var(--md-on-primary-container);}
+  .eq-item .eq-label{font-size:12.5px;font-weight:600;color:var(--md-on-surface);}
+  .eq-item .eq-caption{font-size:11px;color:var(--md-on-surface-variant);line-height:1.3;}
+  .eq-sign{font-size:20px;font-weight:700;color:var(--md-outline);}
+
+  /* ===== Sections ===== */
+  section{padding:36px 0 8px;}
+  .section-head{margin-bottom:18px;}
+  .section-kicker{
+    display:flex;align-items:center;gap:8px;
+    font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--md-primary);
+    margin-bottom:6px;
+  }
+  .section-kicker .msi{font-size:18px;}
+  h3.section-title{font-size:24px;font-weight:700;margin:0;letter-spacing:-.01em;}
+  p.section-sub{font-size:14.5px;color:var(--md-on-surface-variant);margin:6px 0 0;line-height:1.5;}
+
+  /* ===== Cards ===== */
+  .card{
+    background:var(--md-surface-container-lowest);
+    border-radius:var(--radius-m);
+    padding:20px;
+    box-shadow:var(--e1);
+    transition:box-shadow .25s ease, transform .25s ease;
+  }
+  .card + .card{margin-top:12px;}
+  .card:active{box-shadow:var(--e2);}
+
+  .card-icon{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:12px;
+  }
+  .card h4{font-size:16px;font-weight:600;margin:0 0 6px;}
+  .card p{font-size:14px;line-height:1.55;color:var(--md-on-surface-variant);margin:0;}
+
+  .tone-primary .card-icon{background:var(--md-primary-container);color:var(--md-on-primary-container);}
+  .tone-secondary .card-icon{background:var(--md-secondary-container);color:var(--md-on-secondary-container);}
+  .tone-tertiary .card-icon{background:var(--md-tertiary-container);color:var(--md-on-tertiary-container);}
+  .tone-error .card-icon{background:var(--md-error-container);color:var(--md-on-error-container);}
+
+  .grid-2{display:grid;grid-template-columns:1fr;gap:12px;}
+  @media(min-width:520px){ .grid-2{grid-template-columns:1fr 1fr;} }
+
+  /* Mission / Vision */
+  .mv-card{border-radius:var(--radius-m);padding:22px;color:#fff;box-shadow:var(--e2);}
+  .mv-card.mission{background:linear-gradient(150deg,#0B57D0,#0842A0);}
+  .mv-card.vision{background:linear-gradient(150deg,#00677E,#004856);}
+  .mv-card .msi{font-size:28px;margin-bottom:10px;opacity:.92;}
+  .mv-card h4{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;opacity:.85;}
+  .mv-card p{font-size:15px;line-height:1.55;margin:0;font-weight:400;}
+
+  /* Chips */
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12.5px;font-weight:500;
+    padding:7px 14px 7px 10px;
+    border-radius:100px;
+    background:var(--md-surface-container);
+    color:var(--md-on-surface);
+    border:1px solid var(--md-outline-variant);
+  }
+  .chip .msi{font-size:16px;color:var(--md-primary);}
+
+  /* Timeline */
+  .timeline{position:relative; margin-top:8px; padding-left:36px;}
+  .timeline::before{
+    content:'';position:absolute;left:15px;top:6px;bottom:6px;width:2px;
+    background:var(--md-outline-variant);
+  }
+  .t-item{position:relative;padding-bottom:26px;}
+  .t-item:last-child{padding-bottom:0;}
+  .t-dot{
+    position:absolute;left:-36px;top:0;
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--md-primary);color:#fff;
+    box-shadow:var(--e1);
+    z-index:1;
+  }
+  .t-dot.alt{background:var(--md-secondary);}
+  .t-dot.warn{background:var(--md-tertiary);}
+  .t-year{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--md-primary);text-transform:uppercase;}
+  .t-card{
+    background:var(--md-surface-container-lowest);
+    border-radius:var(--radius-s);
+    padding:14px 16px;
+    box-shadow:var(--e1);
+    margin-top:6px;
+  }
+  .t-card h5{margin:0 0 4px;font-size:15px;font-weight:600;}
+  .t-card p{margin:0;font-size:13.5px;line-height:1.5;color:var(--md-on-surface-variant);}
+  .t-card .competitors{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;}
+  .t-card .competitors span{
+    font-size:11px;font-weight:600;color:var(--md-on-secondary-container);
+    background:var(--md-secondary-container);
+    padding:3px 9px;border-radius:100px;
+  }
+
+  /* Limitations list */
+  .limit-item{
+    display:flex;gap:14px;align-items:flex-start;
+    padding:16px 0;
+    border-bottom:1px solid var(--md-outline-variant);
+  }
+  .limit-item:last-child{border-bottom:none;}
+  .limit-icon{
+    width:40px;height:40px;border-radius:12px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--md-tertiary-container);color:var(--md-on-tertiary-container);
+  }
+  .limit-item h5{margin:0 0 4px;font-size:15px;font-weight:600;}
+  .limit-item p{margin:0;font-size:13.5px;line-height:1.5;color:var(--md-on-surface-variant);}
+
+  /* Callout banner */
+  .banner{
+    display:flex;gap:14px;align-items:flex-start;
+    background:var(--md-tertiary-container);
+    color:var(--md-on-tertiary-container);
+    border-radius:var(--radius-m);
+    padding:18px;
+    margin-top:20px;
+  }
+  .banner .msi{font-size:26px;flex-shrink:0;margin-top:2px;}
+  .banner p{margin:0;font-size:13.5px;line-height:1.5;}
+  .banner strong{display:block;font-size:14.5px;margin-bottom:3px;}
+
+  /* Divider */
+  .hr{height:1px;background:var(--md-outline-variant);margin:36px 0 0;}
+
+  /* Footer */
+  footer{padding:36px 16px 8px;text-align:center;}
+  footer p{font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;}
+  footer .whale{color:var(--md-outline);margin-bottom:10px;}
+
+  /* Reveal-on-scroll */
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease, transform .55s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1;transform:none;transition:none;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* Focus visibility */
+  a:focus-visible, button:focus-visible{outline:2px solid var(--md-primary); outline-offset:2px;}
+</style>
+</head>
+<body>
+<nav aria-label="Explainer navigation" style="padding:12px 16px;"><a href="/">← Back to Explainers</a></nav>
+
+<div class="app-bar">
+  <div class="brand-mark">
+    <span class="msi fill" style="color:#fff;">directions_boat</span>
+  </div>
+  <div>
+    <h1>Docker</h1>
+    <p class="subtitle">A leadership briefing on containers</p>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="container" style="padding:0;">
+    <span class="eyebrow"><span class="msi" style="font-size:15px;">bolt</span>Explainer for non-technical leaders</span>
+    <h2>Software that ships<br>like cargo.</h2>
+    <p class="lede">Docker took a decades-old idea from global shipping — put anything in a standard box, and any ship, crane, or truck can move it — and applied it to software. The result changed how the entire industry builds and delivers technology.</p>
+
+    <div class="equivalence reveal">
+      <div class="eq-item physical">
+        <div class="eq-icon-wrap"><span class="msi fill">inventory_2</span></div>
+        <div class="eq-label">Shipping container</div>
+        <div class="eq-caption">Standard box, any ship or port</div>
+      </div>
+      <div class="eq-sign">=</div>
+      <div class="eq-item digital">
+        <div class="eq-icon-wrap"><span class="msi fill">deployed_code</span></div>
+        <div class="eq-label">Docker container</div>
+        <div class="eq-caption">Standard package, any computer or cloud</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- MISSION & VISION -->
+  <section id="mission" class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">flag</span>Why they exist</div>
+      <h3 class="section-title">Mission &amp; Vision</h3>
+    </div>
+    <div class="grid-2">
+      <div class="mv-card mission">
+        <span class="msi fill">rocket_launch</span>
+        <h4>Mission</h4>
+        <p>Give development teams one collaborative platform — tools, shared content, and services — so builders and their managers can work from the same playbook instead of fighting mismatched environments.</p>
+      </div>
+      <div class="mv-card vision">
+        <span class="msi fill">visibility</span>
+        <h4>Vision</h4>
+        <p>Shift the balance of a developer's day: less time wrestling with setup, configuration, and "it works on my machine" fires — more time spent actually building new value.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEFORE DOCKER -->
+  <section id="before" class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">history</span>The landscape before 2013</div>
+      <h3 class="section-title">The problem they set out to solve</h3>
+      <p class="section-sub">Before Docker, moving an application from a developer's laptop to a test server to production was a fragile, manual process — and it usually broke something.</p>
+    </div>
+
+    <div class="card tone-error">
+      <div class="card-icon"><span class="msi">bug_report</span></div>
+      <h4>"It works on my machine"</h4>
+      <p>Applications behaved differently depending on which operating system, library versions, or settings happened to be installed on a given machine. A perfectly working app could fail the moment it moved somewhere new.</p>
+    </div>
+    <div class="card tone-error">
+      <div class="card-icon"><span class="msi">layers</span></div>
+      <h4>Heavy, slow virtual machines</h4>
+      <p>The main isolation tool of the era was the virtual machine — each one bundling an entire guest operating system. VMs were reliable but heavy: slow to start, expensive to run, and costly to multiply.</p>
+    </div>
+    <div class="card tone-error">
+      <div class="card-icon"><span class="msi">groups</span></div>
+      <h4>Friction between developers and operations</h4>
+      <p>Developers wrote the code; a separate operations team had to reproduce that exact setup on production servers by hand. Every handoff was a chance for something to be configured slightly differently.</p>
+    </div>
+
+    <div class="banner reveal">
+      <span class="msi fill">lightbulb</span>
+      <div>
+        <strong>The underlying tech already existed</strong>
+        <p>Linux had low-level building blocks (kernel namespaces and control groups) that could isolate processes without a full virtual machine. Nobody had packaged them into something teams could actually use day to day. That packaging — not the invention of a new technology — was Docker's breakthrough.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASE -->
+  <section id="usecase" class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">widgets</span>The core idea</div>
+      <h3 class="section-title">Main use case</h3>
+      <p class="section-sub">Docker packages an application together with everything it needs to run — code, runtime, system tools, settings — into one sealed, portable unit called a container. That container behaves identically on a laptop, a test server, or a cloud data center.</p>
+    </div>
+    <div class="chip-row">
+      <span class="chip"><span class="msi">check_circle</span>Consistent everywhere</span>
+      <span class="chip"><span class="msi">check_circle</span>Starts in seconds</span>
+      <span class="chip"><span class="msi">check_circle</span>Lightweight vs. VMs</span>
+      <span class="chip"><span class="msi">check_circle</span>Portable across clouds</span>
+    </div>
+  </section>
+
+  <!-- PRACTICAL EXAMPLES -->
+  <section id="examples" class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">checklist</span>In practice</div>
+      <h3 class="section-title">Practical examples</h3>
+    </div>
+
+    <div class="card tone-primary">
+      <div class="card-icon"><span class="msi">rocket</span></div>
+      <h4>Faster, safer software releases</h4>
+      <p>Teams package an app once as a container and promote that exact same package through testing and into production, removing a major source of release-day surprises — a common building block of modern CI/CD pipelines.</p>
+    </div>
+    <div class="card tone-primary">
+      <div class="card-icon"><span class="msi">hub</span></div>
+      <h4>Breaking big apps into microservices</h4>
+      <p>Instead of one giant application, teams run many small services — billing, search, notifications — each in its own container. Each piece can be updated or scaled independently.</p>
+    </div>
+    <div class="card tone-primary">
+      <div class="card-icon"><span class="msi">cloud_sync</span></div>
+      <h4>Cloud and multi-cloud portability</h4>
+      <p>A containerized application isn't locked to one vendor's infrastructure. The same container can run on AWS, Azure, Google Cloud, or a company's own servers with minimal rework.</p>
+    </div>
+    <div class="card tone-primary">
+      <div class="card-icon"><span class="msi">restore_page</span></div>
+      <h4>Modernizing legacy applications</h4>
+      <p>Older applications can be wrapped in containers as a first step toward modernization, escaping aging physical servers without a full, risky rewrite.</p>
+    </div>
+    <div class="card tone-primary">
+      <div class="card-icon"><span class="msi">person_add</span></div>
+      <h4>Faster onboarding</h4>
+      <p>A new engineer can get a fully working local copy of a complex system running in minutes with one command, instead of spending days manually installing dependencies.</p>
+    </div>
+  </section>
+
+  <!-- COMPETITIVE LANDSCAPE -->
+  <section id="landscape" class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">compare_arrows</span>Evolving over a decade</div>
+      <h3 class="section-title">Competitive landscape over time</h3>
+      <p class="section-sub">Docker didn't face one static competitor — the battleground shifted as the market matured.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="t-item">
+        <div class="t-dot"><span class="msi" style="font-size:16px;">looks_one</span></div>
+        <div class="t-year">2008 – 2013</div>
+        <div class="t-card">
+          <h5>Pre-Docker: virtual machines rule</h5>
+          <p>Isolation meant full virtual machines. Docker's own predecessor, dotCloud, was a platform-as-a-service company before pivoting to open-source containers in 2013.</p>
+          <div class="competitors"><span>VMware</span><span>VirtualBox</span><span>Linux Containers (LXC)</span></div>
+        </div>
+      </div>
+
+      <div class="t-item">
+        <div class="t-dot"><span class="msi" style="font-size:16px;">looks_two</span></div>
+        <div class="t-year">2013 – 2016</div>
+        <div class="t-card">
+          <h5>Docker becomes the standard</h5>
+          <p>Docker's packaging made containers easy enough for mainstream teams. A format war briefly broke out over what a standard container should look like.</p>
+          <div class="competitors"><span>CoreOS rkt</span><span>Canonical LXD</span></div>
+        </div>
+      </div>
+
+      <div class="t-item">
+        <div class="t-dot alt"><span class="msi" style="font-size:16px;">looks_3</span></div>
+        <div class="t-year">2015 – 2018</div>
+        <div class="t-card">
+          <h5>The orchestration wars</h5>
+          <p>Running one container is easy; running thousands across many machines is hard. Docker built its own answer, Swarm, but Google's open-sourced Kubernetes won the majority of enterprise adoption.</p>
+          <div class="competitors"><span>Docker Swarm</span><span>Kubernetes</span><span>Apache Mesos</span></div>
+        </div>
+      </div>
+
+      <div class="t-item">
+        <div class="t-dot warn"><span class="msi" style="font-size:16px;">looks_4</span></div>
+        <div class="t-year">2019</div>
+        <div class="t-card">
+          <h5>The business splits in two</h5>
+          <p>Docker sold its enterprise container-management business to Mirantis and refocused the company on developer tools — Docker Desktop and Docker Hub — rather than competing head-on for the orchestration market.</p>
+          <div class="competitors"><span>Mirantis</span><span>Red Hat OpenShift</span></div>
+        </div>
+      </div>
+
+      <div class="t-item">
+        <div class="t-dot alt"><span class="msi" style="font-size:16px;">looks_5</span></div>
+        <div class="t-year">2020 – today</div>
+        <div class="t-card">
+          <h5>A crowded, specialized field</h5>
+          <p>Kubernetes now dominates large-scale orchestration, while Docker's own donated engine (containerd) runs quietly underneath much of that ecosystem. Newer, often free alternatives compete directly for the developer's desktop.</p>
+          <div class="competitors"><span>Podman</span><span>Rancher Desktop</span><span>OrbStack</span><span>containerd</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIMITATIONS -->
+  <section id="limitations" class="reveal">
+    <div class="section-head">
+      <div class="section-kicker"><span class="msi">warning</span>Where it falls short</div>
+      <h3 class="section-title">Limitations to plan around</h3>
+    </div>
+
+    <div class="card">
+      <div class="limit-item">
+        <div class="limit-icon"><span class="msi">shield</span></div>
+        <div>
+          <h5>Thinner security boundary than a VM</h5>
+          <p>Containers on one machine share the same underlying operating system kernel. A misconfigured or compromised container carries more risk than a virtual machine, which is more fully isolated.</p>
+        </div>
+      </div>
+      <div class="limit-item">
+        <div class="limit-icon"><span class="msi">account_tree</span></div>
+        <div>
+          <h5>Doesn't manage scale by itself</h5>
+          <p>Docker packages and runs individual containers well. Coordinating thousands of them reliably in production requires a separate orchestration layer, most often Kubernetes — an added system to learn and operate.</p>
+        </div>
+      </div>
+      <div class="limit-item">
+        <div class="limit-icon"><span class="msi">payments</span></div>
+        <div>
+          <h5>Licensing changed the cost calculus</h5>
+          <p>Docker Desktop moved to a paid subscription for larger companies in 2021. That single change pushed many organizations to evaluate free alternatives for local development.</p>
+        </div>
+      </div>
+      <div class="limit-item">
+        <div class="limit-icon"><span class="msi">inventory</span></div>
+        <div>
+          <h5>Supply-chain risk from public images</h5>
+          <p>Teams often build on pre-made container images from public libraries. Unvetted or outdated images can quietly introduce vulnerabilities into production systems.</p>
+        </div>
+      </div>
+      <div class="limit-item">
+        <div class="limit-icon"><span class="msi">save</span></div>
+        <div>
+          <h5>Awkward fit for stateful, persistent data</h5>
+          <p>Containers were designed to be disposable and short-lived. Applications that need to reliably retain data — like databases — need extra care and tooling to run well in this model.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <footer>
+    <div class="whale"><span class="msi" style="font-size:28px;">directions_boat</span></div>
+    <p>This briefing summarizes publicly available information about Docker for general business orientation.<br>Not affiliated with or endorsed by Docker, Inc.</p>
+  </footer>
+
+</div>
+
+<script>
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+  els.forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
