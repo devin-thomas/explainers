@@ -1,0 +1,67 @@
+---
+import MicrosoftGraphMsalExplainer from "../components/MicrosoftGraphMsalExplainer";
+import ExplainerPageIntro from "../components/ExplainerPageIntro.astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07110d" />
+    <meta
+      name="description"
+      content="A visual guide to how MSAL acquires and caches tokens, how Microsoft Graph uses them, and how permissions, consent, app registrations, and device-code flows fit together."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Explainers" />
+    <meta property="og:title" content="Microsoft Graph & MSAL" />
+    <meta
+      property="og:description"
+      content="Learn the boundary between identity and data: MSAL gets tokens, while Microsoft Graph uses them to access authorized Microsoft 365 resources."
+    />
+    <meta property="og:url" content="https://explainers.uppercut-labs.workers.dev/microsoft-graph-and-msal" />
+    <meta property="og:image" content="https://explainers.uppercut-labs.workers.dev/icons/app-icon-512.png" />
+    <title>Microsoft Graph & MSAL — Explainers</title>
+    <meta name="application-name" content="Uppercut Labs Explainers" />
+    <meta name="apple-mobile-web-app-title" content="Explainers" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href="/icons/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <script is:inline src="/pwa.js" defer></script>
+    <style is:global>
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+        background: #07110d;
+        font-family: Inter, Roboto, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      .explainer-page-intro__eyebrow {
+        color: #6ee7a8 !important;
+      }
+
+      .explainer-page-home:hover {
+        border-color: rgba(110, 231, 168, 0.7) !important;
+        background: rgba(13, 43, 28, 0.92) !important;
+      }
+
+      .explainer-page-home:focus-visible {
+        outline-color: rgba(110, 231, 168, 0.78) !important;
+      }
+    </style>
+  </head>
+  <body class="explainer-page-with-intro">
+    <ExplainerPageIntro
+      title="Microsoft Graph & MSAL"
+      hook="MSAL handles identity and tokens. Microsoft Graph uses those tokens to reach authorized Microsoft 365 data."
+    />
+    <MicrosoftGraphMsalExplainer client:load />
+  </body>
+</html>
