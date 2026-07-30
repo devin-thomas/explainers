@@ -9,6 +9,7 @@ A single Astro project deployed to the existing Cloudflare Worker:
 ## Catalog routes
 
 - `/`
+- `/markdown`
 - `/free-zapier-alternatives`
 - `/obsidian-on-servers`
 - `/npm-and-npx`
@@ -32,10 +33,28 @@ The homepage defaults to **Newest first**, using each card's explicit `data-publ
 - `src/components/` contains Astro and React components used by Astro-owned routes.
 - `scripts/check-route-ownership.mjs` rejects duplicate route ownership, owned routes missing from the catalog, catalog links without owners, and duplicate catalog links.
 - `scripts/normalize-explainer-pages.mjs` applies the title and navigation contract to older self-contained pages after Astro builds.
-- `docs/adr/0001-explainer-route-and-catalog-contract.md` is the authoritative explainer publishing contract.
+- `docs/README.md` indexes the product, architecture, content, design, engineering, audit, and checklist documentation.
+- `docs/adr/0001-explainer-route-and-catalog-contract.md` is the authoritative route, catalog, hydration, navigation, and page-identity contract.
+- `docs/adr/0002-preferred-explainer-architecture.md` defines the preferred architecture for new explainers and the exception process.
 - `wrangler.jsonc` deploys Astro's `dist/` output to the existing `explainers` Worker.
 
 There is intentionally no root-level `index.html`; keeping the homepage only in `public/index.html` prevents two catalog copies from drifting apart.
+
+## Documentation
+
+Start with [`docs/README.md`](docs/README.md).
+
+The documentation distinguishes:
+
+- accepted architecture decisions;
+- product principles;
+- content and sourcing standards;
+- shared design expectations;
+- implementation guidance;
+- repository audits;
+- and pre-merge checklists.
+
+The current documentation also records planned work that is not implemented yet, including structured explainer metadata, a shared Astro layout, framework-neutral design tokens, stronger validation, and a reference implementation.
 
 ## Route ownership rule
 
@@ -58,7 +77,7 @@ Return navigation is branded, top-left, and part of normal document flow. It mus
 
 ## Interactive Astro pages
 
-Full-page React explainers render meaningful HTML during the Astro build and then hydrate with `client:load`:
+Full-page React explainers render meaningful HTML during the Astro build and then hydrate with an appropriate client directive:
 
 ```astro
 ---
@@ -76,6 +95,8 @@ import ExplainerPageIntro from "../components/ExplainerPageIntro.astro";
 ```
 
 Do not use `client:only` for an entire explainer unless a separate ADR explains why server rendering is impossible and the page provides a complete non-JavaScript fallback.
+
+ADR 0002 establishes the preferred future direction: static explanatory HTML in a shared Astro layout, with React used for justified interactive islands rather than automatically owning the complete article.
 
 ## Build lifecycle
 
@@ -124,12 +145,19 @@ Manual deployment is optional after GitHub is connected to Workers Builds.
 
 ## Adding an explainer
 
+Read the documentation index and checklist before adding a page.
+
+Until the structured metadata and shared-layout implementation lands:
+
 1. Choose one route owner: `public/` or `src/pages/`.
-2. Use the same canonical title in the catalog and destination `h1`.
-3. Add a selectable `<article class="card">` to `public/index.html` with a separate link and an ISO `data-published` timestamp.
-4. Use in-flow branded return navigation.
-5. For React, prefer server-rendered output plus `client:load`.
-6. Run `npm run build`; the route/catalog validator must report the new route exactly once.
+2. Prefer Astro for new work unless a static exception is documented.
+3. Use the same canonical title in the catalog and destination `h1`.
+4. Add a selectable `<article class="card">` to `public/index.html` with a separate link and an ISO `data-published` timestamp.
+5. Use in-flow branded return navigation.
+6. Render core explanatory content as meaningful HTML before hydration.
+7. Use React for justified interactive behavior rather than static article assembly.
+8. Run `npm run build`; the route/catalog validator must report the new route exactly once.
+9. Complete `docs/checklists/new-explainer-checklist.md` before merge.
 
 ## Branding and PWA
 
