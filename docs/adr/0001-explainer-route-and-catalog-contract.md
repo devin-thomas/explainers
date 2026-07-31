@@ -14,6 +14,7 @@ The repository grew from a mixture of self-contained HTML explainers and Astro/R
 - Catalog cards were full-card links. This made the title and description difficult to select and copy.
 - Catalog titles and the page's primary `h1` could disagree. The catalog promised one title while the destination led with unrelated oversized text.
 - The default `Featured order` implied editorial promotion, recommendation, sponsorship, or hidden ranking logic even though no such system had been defined.
+- Catalog metadata embedded directly in the homepage made large series cumbersome to add and easy to duplicate incorrectly.
 
 These are product-contract problems rather than one-off styling problems, so they need repository-level rules.
 
@@ -57,15 +58,22 @@ The return-to-catalog control:
 
 Astro pages use `src/components/ExplainerPageIntro.astro`. Older self-contained pages are normalized after build by `scripts/normalize-explainer-pages.mjs`.
 
-### 5. Catalog text is selectable
+### 5. The catalog has one structured metadata source
 
-Catalog entries are semantic `<article>` elements containing normal text. Only the explicit “Open explainer” control is a link.
+`public/explainer-catalog.json` is the sole source for catalog title, summary, route, and publication timestamp. `public/catalog.js` renders the entries into semantic `<article>` cards in `public/index.html`.
 
-Do not wrap the entire title, description, or card in an anchor or click handler. Visitors must be able to select and copy titles and descriptions normally.
+Rendered catalog text remains normal selectable text. Only the explicit “Open explainer” control is a link. Do not wrap the entire title, description, or card in an anchor or click handler.
+
+The prebuild validator must confirm that:
+
+- every owned explainer route appears exactly once in catalog data,
+- every catalog route has exactly one owner,
+- every entry contains `title`, `summary`, `route`, and `published`,
+- no catalog route is duplicated.
 
 ### 6. Default ordering is reverse chronological
 
-The default catalog order is **Newest first**, based on each card's explicit `data-published` timestamp.
+The default catalog order is **Newest first**, based on each entry's explicit ISO `published` timestamp.
 
 Supported ordering modes are:
 
@@ -80,7 +88,7 @@ Do not add `Featured`, `Recommended`, `Promoted`, or similar ranking language un
 
 `npm run build` performs three stages:
 
-1. `prebuild`: fail on duplicate route ownership.
+1. `prebuild`: fail on duplicate route ownership or incomplete catalog data.
 2. `build`: generate Astro's `dist/` output.
 3. `postbuild`: normalize canonical titles and in-flow navigation for legacy self-contained pages.
 
@@ -100,12 +108,14 @@ GitHub Actions runs the production build for pull requests and pushes to `main`.
 - Page identity remains consistent from catalog to destination.
 - Titles and descriptions can be copied.
 - Navigation behaves consistently and does not cover content.
+- One structured catalog file scales cleanly to large explainer series.
 - Future regressions fail during build instead of appearing first in production.
 
 ### Tradeoffs
 
+- The homepage requires JavaScript to render catalog cards.
 - Self-contained HTML pages receive a small postbuild transformation.
-- New explainers must record a publication timestamp in the catalog.
+- New explainers must record complete metadata and an ISO publication timestamp in the catalog JSON.
 - Full-page client-only React experiments require either conversion to server-rendered output or a separate ADR with a real fallback.
 
 ## Implementation notes
@@ -113,8 +123,8 @@ GitHub Actions runs the production build for pull requests and pushes to `main`.
 When adding an explainer:
 
 1. Choose either `public/<route>/index.html` or `src/pages/<route>.astro`.
-2. Add the canonical title, description, route, and `data-published` timestamp to `public/index.html`.
-3. Keep the card as selectable text plus a separate link.
+2. Add the canonical title, summary, route, and ISO `published` timestamp to `public/explainer-catalog.json`.
+3. Keep the rendered card as selectable text plus a separate link.
 4. Make the destination `h1` exactly match the catalog title.
 5. Use in-flow branded navigation.
 6. Run `npm run build` before merging.
