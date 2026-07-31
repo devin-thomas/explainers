@@ -1,0 +1,7 @@
+---
+import AzureCloudExplainerPage from "../components/AzureCloudExplainerPage.astro";
+
+const route = Astro.url.pathname.replace(/^\/|\/$/g, "");
+---
+
+<AzureCloudExplainerPage route={route} />
