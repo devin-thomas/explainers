@@ -21,6 +21,8 @@ A single Astro project deployed to the existing Cloudflare Worker:
 - `/ai-gamedev-compatibility`
 - `/docker-for-leaders`
 - `/docker-for-coders`
+- `/deliver-python`
+- `/markdown`
 - `/azure-docker-image-registry-container-app`
 - `/azure-static-web-apps-vs-container-apps`
 - `/azure-dns-custom-domains-https`
